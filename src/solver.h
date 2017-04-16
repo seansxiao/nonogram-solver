@@ -56,6 +56,9 @@ struct solution {
 		width = w;
 		height = h;
 		data = new int[width * height];
+		for (int i = 0; i < width * height; i++) {
+			data[i] = 0;
+		}
 	}
 };
 

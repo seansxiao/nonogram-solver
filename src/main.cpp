@@ -16,6 +16,7 @@ int main() {
 		r_nums, r_colors, c_nums, c_colors);
 
 	// Print column constraints
+	printf("Column constraints:\n");
 	for (int i = 0; i < p.width; i++) {
 		for (int j = 0; j < p.col_sizes[i]; j++) {
 			printf("%d ", p.col_constraints[i][j]);
@@ -23,6 +24,7 @@ int main() {
 		printf("\n");
 	}
 	printf("\n");
+	printf("Row constraints:\n");
 	// Print row constraints
 	for (int i = 0; i < p.height; i++) {
 		for (int j = 0; j < p.row_sizes[i]; j++) {
@@ -30,6 +32,52 @@ int main() {
 		}
 		printf("\n");
 	}
+	printf("\n");
+
+	solution s = solution(w, h);
+	for (int i = 0; i < w * h; i++) {
+		if (i >= 9 && i <= 12)
+			s.data[i] = 1;
+		if (i >= 17 && i <= 22)
+			s.data[i] = 1;
+		if (i >= 25 && i <= 26)
+			s.data[i] = 1;
+		if (i >= 29 && i <= 30)
+			s.data[i] = 1;
+		if (i >= 33 && i <= 34)
+			s.data[i] = 1;
+		if (i >= 37 && i <= 38)
+			s.data[i] = 1;
+		if (i >= 41 && i <= 46)
+			s.data[i] = 1;
+		if (i >= 49 && i <= 52)
+			s.data[i] = 1;
+		if (i >= 57 && i <= 58)
+			s.data[i] = 1;
+		if (i >= 65 && i <= 66)
+			s.data[i] = 1;
+		if (i >= 73 && i <= 74)
+			s.data[i] = 1;
+	}
+	// Print solution
+	printf("Solution:\n");
+	for (int i = 0; i < h; i++) {
+		printf("|");
+		for (int j = 0; j < w; j++) {
+			if (s.data[i * w + j] == 1)
+				printf("X");
+			else
+				printf(" ");
+		}
+		printf("|\n");
+	}
+	printf("\n");
+
+	bool correct = check_solution(&p, &s);
+	if (correct)
+		printf("CORRECTNESS PASSED\n");
+	else
+		printf("CORRECTNESS FAILED\n");
 
 	return 0;
 }
