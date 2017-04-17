@@ -3,59 +3,68 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-bool check_solution(puzzle* p, solution* s) {
-	if (p->width != s->width || p->height != s->height)
-		return false;
+void solve(Puzzle p, Solution s) {
+	s->mark_unknown();
 
-	// Check row constraints
 	for (int row = 0; row < p->height; row++) {
-		
-		int col = 0;
 		int numConstraints = p->row_sizes[row];
-		for (int i = 0; i < numConstraints; i++) {
-			
-			// Ignore leading empty spaces
-			while (col < s->width && s->data[row * s->width + col] == 0) {
-				col++;
-			}
+		int* runStarts = new int[numConstraints];
+		int* runEnds = new int[numConstraints];
+		runStarts[0] = 0;
+		runEnds[numConstraints-1] = p->width - 1;
 
-			int color = p->row_constraints[row][i].color;
-			int num = p->row_constraints[row][i].num;
-			for (int j = 0; j < num; j++) {
-				// Out of bounds
-				if (col >= s->width)
-					return false;
-				if (s->data[row * s->width + col] != color)
-					return false;
-				col++;
+
+		// Set begin and end points for each run
+		int startCounter = p->row_constraints[row][0].num + 1;
+		for (int i = 1; i < numConstraints; i++) {
+			runStarts[i] = startCounter;
+			startCounter += p->row_constraints[row][i].num + 1;
+		}
+
+		int endCounter = p->width - p->row_constraints[row][numConstraints-1].num - 2;
+		for (int i = numConstraints - 2; i >= 0; i--) {
+			runEnds[i] = endCounter;
+			endCounter -= p->row_constraints[row][i].num - 1;
+		}
+
+		for (int i = 0; i < numConstraints; i++) {
+			int u = runEnds[i] - runStarts[i] + 1 - p->row_constraints[row][i].num;
+
+			for (int j = runStarts[i] + u; j <= runEnds[i] - u; j++) {
+				s->data[row * s->width + j] = 1;
 			}
 		}
 	}
 
-	// Check column constraints
 	for (int col = 0; col < p->width; col++) {
-		
-		int row = 0;
 		int numConstraints = p->col_sizes[col];
-		for (int i = 0; i < numConstraints; i++) {
-			
-			// Ignore leading empty spaces
-			while (row < s->height && s->data[row * s->width + col] == 0) {
-				row++;
-			}
+		int* runStarts = new int[numConstraints];
+		int* runEnds = new int[numConstraints];
+		runStarts[0] = 0;
+		runEnds[numConstraints-1] = p->height - 1;
 
-			int color = p->col_constraints[col][i].color;
-			int num = p->col_constraints[col][i].num;
-			for (int j = 0; j < num; j++) {
-				// Out of bounds
-				if (row >= s->height)
-					return false;
-				if (s->data[row * s->width + col] != color)
-					return false;
-				row++;
+
+		// Set begin and end points for each run
+		int startCounter = p->col_constraints[col][0].num + 1;
+		for (int i = 1; i < numConstraints; i++) {
+			runStarts[i] = startCounter;
+			startCounter += p->col_constraints[col][i].num + 1;
+		}
+
+		int endCounter = p->height - p->col_constraints[col][numConstraints-1].num - 2;
+		for (int i = numConstraints - 2; i >= 0; i--) {
+			runEnds[i] = endCounter;
+			endCounter -= p->col_constraints[col][i].num - 1;
+		}
+
+		for (int i = 0; i < numConstraints; i++) {
+			int u = runEnds[i] - runStarts[i] + 1 - p->col_constraints[col][i].num;
+
+			for (int j = runStarts[i] + u; j <= runEnds[i] - u; j++) {
+				s->data[j * s->width + col] = 1;
 			}
 		}
 	}
 
-	return true;
+	return;
 }

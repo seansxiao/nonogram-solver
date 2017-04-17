@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "puzzle.h"
 #include "solver.h"
 
 int main() {
@@ -35,41 +36,46 @@ int main() {
 	printf("\n");
 
 	solution s = solution(w, h);
-	for (int i = 0; i < w * h; i++) {
-		if (i >= 9 && i <= 12)
-			s.data[i] = 1;
-		if (i >= 17 && i <= 22)
-			s.data[i] = 1;
-		if (i >= 25 && i <= 26)
-			s.data[i] = 1;
-		if (i >= 29 && i <= 30)
-			s.data[i] = 1;
-		if (i >= 33 && i <= 34)
-			s.data[i] = 1;
-		if (i >= 37 && i <= 38)
-			s.data[i] = 1;
-		if (i >= 41 && i <= 46)
-			s.data[i] = 1;
-		if (i >= 49 && i <= 52)
-			s.data[i] = 1;
-		if (i >= 57 && i <= 58)
-			s.data[i] = 1;
-		if (i >= 65 && i <= 66)
-			s.data[i] = 1;
-		if (i >= 73 && i <= 74)
-			s.data[i] = 1;
-	}
+	// for (int i = 0; i < w * h; i++) {
+	// 	if (i >= 9 && i <= 12)
+	// 		s.data[i] = 1;
+	// 	if (i >= 17 && i <= 22)
+	// 		s.data[i] = 1;
+	// 	if (i >= 25 && i <= 26)
+	// 		s.data[i] = 1;
+	// 	if (i >= 29 && i <= 30)
+	// 		s.data[i] = 1;
+	// 	if (i >= 33 && i <= 34)
+	// 		s.data[i] = 1;
+	// 	if (i >= 37 && i <= 38)
+	// 		s.data[i] = 1;
+	// 	if (i >= 41 && i <= 46)
+	// 		s.data[i] = 1;
+	// 	if (i >= 49 && i <= 52)
+	// 		s.data[i] = 1;
+	// 	if (i >= 57 && i <= 58)
+	// 		s.data[i] = 1;
+	// 	if (i >= 65 && i <= 66)
+	// 		s.data[i] = 1;
+	// 	if (i >= 73 && i <= 74)
+	// 		s.data[i] = 1;
+	// }
+	solve(&p, &s);
 	// Print solution
 	printf("Solution:\n");
 	for (int i = 0; i < h; i++) {
-		printf("|");
 		for (int j = 0; j < w; j++) {
-			if (s.data[i * w + j] == 1)
+			int color = s.data[i * w + j];
+			if (color == 0)
+				printf("-");
+			else if (color == 1)
 				printf("X");
+			else if (color == -1)
+				printf(".");
 			else
 				printf(" ");
 		}
-		printf("|\n");
+		printf("\n");
 	}
 	printf("\n");
 
