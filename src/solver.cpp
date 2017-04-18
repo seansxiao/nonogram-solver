@@ -231,6 +231,7 @@ void solve(Puzzle p, Solution solu) {
                                 max = std::max(max,runlen);
                                 min = std::min(min,k); 
                             }
+                            else break; 
                         }
                         if(max < totallen){ if(solu->set(i,targetcell,EMPTY)) progress = true;}
                         lower_run = min; 
@@ -241,6 +242,12 @@ void solve(Puzzle p, Solution solu) {
                     start_start = -1, start_end = -1, end_start = -1, end_end = -1;
                 }
             }
+            // Rule 1.5
+            /*for(int j = 1; j < p -> width; j++){
+                int index = i*solu->width + j
+                if(solu->data[index] > 0 && solu->data[index-1] <= 0)
+            }*/
+            
 
 			// Rule 2.1
 			for (int j = 1; j < size; j++) {
@@ -399,6 +406,7 @@ void solve(Puzzle p, Solution solu) {
                                 max = std::max(max,runlen);
                                 min = std::min(min,k); 
                             }
+                            else break; 
                         }
                         if(max < totallen){ if(solu->set(targetcell,i,EMPTY)) progress = true;}
                         lower_run = min; 
@@ -409,7 +417,7 @@ void solve(Puzzle p, Solution solu) {
                     start_start = -1, start_end = -1, end_start = -1, end_end = -1;
                 }
             }
-
+            
 			// Rule 2.1
 			for (int j = 1; j < size; j++) {
 				int currentStart = solv->col_runs[i][j].s;
