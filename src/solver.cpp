@@ -179,7 +179,7 @@ void solve(Puzzle p, Solution solu) {
                     for(int k = 0; k < j; k++){
                         int diffstart = solv->row_runs[i][k].s;
                         int diffend = solv->row_runs[i][k].e;
-                        if(solv->row_runs[i][k].l != 1 || !(diffstart < start && diffend > start)){
+                        if(solv->row_runs[i][k].l != 1 || !(diffstart <= start && diffend >= start)){
                             len1 = false;
                             break;
                         }
@@ -193,12 +193,52 @@ void solve(Puzzle p, Solution solu) {
                     for(int k = j+1; k < size; k++){
                         int diffstart = solv->row_runs[i][k].s;
                         int diffend = solv->row_runs[i][k].e;
-                        if(solv->row_runs[i][k].l != 1 || !(diffstart < end && diffend > end)){
+                        if(solv->row_runs[i][k].l != 1 || !(diffstart <= end && diffend >= end)){
                             len1 = false;
                             break;
                         }
                     }
                     if(len1){if(solu->set(i,end+1,EMPTY)) progress = true;} 
+                }
+            }
+            
+            //Rule 1.4
+            int start_start = -1, start_end = -1;//Ends are not inclusive 
+            int end_start = -1, end_end = -1;//Ends are not inclusive
+            int lower_run = 0; //lower bound of runs we have to check for overlap 
+            for(int j = 0; j < p->width; j++){
+                int cell = solu->data[i*solu->width + j];
+                if(cell > 0){
+                    if(start_start == -1) start_start = j;
+                    else if(start_end != -1) end_start = j; 
+                }
+                else if(cell == UNKNOWN){
+                    if(start_start != -1 && start_end == -1) start_end = j;
+                    if(end_start != -1 && end_end == -1){//Found black segment - unknown - black segment
+                        end_end = j; 
+                        int startlen = start_end - start_start;
+                        int endlen = end_end - end_start; 
+                        int totallen = startlen + 1 + endlen; 
+                        int targetcell = start_end; 
+                        //Find any runs that overlap targetcell
+                        int max = -1;
+                        int min = size;
+                        for(int k = lower_run; k < size; k++){
+                            int runstart = solv->row_runs[i][k].s;
+                            int runend = solv->row_runs[i][k].e;
+                            int runlen = solv->row_runs[i][k].l;
+                            if(runstart <= targetcell && runend >= targetcell){
+                                max = std::max(max,runlen);
+                                min = std::min(min,k); 
+                            }
+                        }
+                        if(max < totallen){ if(solu->set(i,targetcell,EMPTY)) progress = true;}
+                        lower_run = min; 
+                        start_start = end_start, start_end = end_end, end_start = -1, end_end = -1;//start = end 
+                    } 
+                }
+                else{
+                    start_start = -1, start_end = -1, end_start = -1, end_end = -1;
                 }
             }
 
@@ -267,6 +307,8 @@ void solve(Puzzle p, Solution solu) {
 			}
 		}
 
+//-------------------- Column -------------------------
+
 		for (int i = 0; i < p->width; i++) {
 			int size = solv->col_sizes[i];
 
@@ -305,7 +347,7 @@ void solve(Puzzle p, Solution solu) {
                     for(int k = 0; k < j; k++){
                         int diffstart = solv->col_runs[i][k].s;
                         int diffend = solv->col_runs[i][k].e;
-                        if(solv->col_runs[i][k].l != 1 || !(diffstart < start && diffend > start)){
+                        if(solv->col_runs[i][k].l != 1 || !(diffstart <= start && diffend >= start)){
                             len1 = false;
                             break;
                         }
@@ -319,12 +361,52 @@ void solve(Puzzle p, Solution solu) {
                     for(int k = j+1; k < size; k++){
                         int diffstart = solv->col_runs[i][k].s;
                         int diffend = solv->col_runs[i][k].e;
-                        if(solv->col_runs[i][k].l != 1 || !(diffstart < end && diffend > end)){
+                        if(solv->col_runs[i][k].l != 1 || !(diffstart <= end && diffend >= end)){
                             len1 = false;
                             break;
                         }
                     }
                     if(len1){if(solu->set(end+1,i,EMPTY)) progress = true;}
+                }
+            }
+
+            //Rule 1.4
+            int start_start = -1, start_end = -1;//Ends are not inclusive 
+            int end_start = -1, end_end = -1;//Ends are not inclusive
+            int lower_run = 0; //lower bound of runs we have to check for overlap 
+            for(int j = 0; j < p->height; j++){
+                int cell = solu->data[j*solu->width + i];
+                if(cell > 0){
+                    if(start_start == -1) start_start = j;
+                    else if(start_end != -1) end_start = j; 
+                }
+                else if(cell == UNKNOWN){
+                    if(start_start != -1 && start_end == -1) start_end = j;
+                    if(end_start != -1 && end_end == -1){//Found black segment - unknown - black segment
+                        end_end = j; 
+                        int startlen = start_end - start_start;
+                        int endlen = end_end - end_start; 
+                        int totallen = startlen + 1 + endlen; 
+                        int targetcell = start_end; 
+                        //Find any runs that overlap targetcell
+                        int max = -1;
+                        int min = size;
+                        for(int k = lower_run; k < size; k++){
+                            int runstart = solv->col_runs[i][k].s;
+                            int runend = solv->col_runs[i][k].e;
+                            int runlen = solv->col_runs[i][k].l;
+                            if(runstart <= targetcell && runend >= targetcell){
+                                max = std::max(max,runlen);
+                                min = std::min(min,k); 
+                            }
+                        }
+                        if(max < totallen){ if(solu->set(targetcell,i,EMPTY)) progress = true;}
+                        lower_run = min; 
+                        start_start = end_start, start_end = end_end, end_start = -1, end_end = -1;//start = end 
+                    } 
+                }
+                else{
+                    start_start = -1, start_end = -1, end_start = -1, end_end = -1;
                 }
             }
 
