@@ -1,6 +1,12 @@
 #ifndef __PUZZLE_H__
 #define __PUZZLE_H__
 
+#define EMPTY 0
+#define UNKNOWN -1
+
+#include <stdio.h>
+#include <stdlib.h>
+
 struct constraint {
 	int num;
 	int color;
@@ -62,20 +68,59 @@ struct solution {
 		height = h;
 		data = new int[width * height];
 		for (int i = 0; i < width * height; i++) {
-			data[i] = 0;
+			data[i] = EMPTY;
 		}
 	}
 
 	void mark_unknown() {
 		for (int i = 0; i < width * height; i++) {
-			data[i] = -1;
+			data[i] = UNKNOWN;
 		}
 		return;
+	}
+
+	void fill_unknown() {
+		for (int i = 0; i < width * height; i++) {
+			if (data[i] == UNKNOWN)
+				data[i] = EMPTY;
+		}
+		return;
+	}
+
+	bool set(int row, int col, int color) {
+		int index = row * width + col;
+		if (data[index] == UNKNOWN) {
+			data[index] = color;
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	void print_solution() {
+		printf("Solution:\n");
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				int color = data[i * width + j];
+				if (color == EMPTY)
+					printf("-");
+				else if (color == 1)
+					printf("X");
+				else if (color == UNKNOWN)
+					printf(".");
+				else
+					printf(" ");
+			}
+			printf("\n");
+		}
+		printf("\n");
 	}
 };
 
 using Solution = solution*;
 
+Solution initialize_solution(int w, int h);
 bool check_solution(Puzzle p, Solution s);
 
 #endif

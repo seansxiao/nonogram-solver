@@ -3,6 +3,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+Solution initialize_solution(int w, int h) {
+	Solution s = (solution*)(malloc(sizeof(struct solution)));
+	s->width = w;
+	s->height = h;
+	s->data = (int*)(malloc(sizeof(int) * w * h));
+	for (int i = 0; i < w * h; i++) {
+		s->data[i] = EMPTY;
+	}
+
+	return s;
+}
+
 bool check_solution(Puzzle p, Solution s) {
 	if (p->width != s->width || p->height != s->height)
 		return false;
@@ -15,7 +28,7 @@ bool check_solution(Puzzle p, Solution s) {
 		for (int i = 0; i < numConstraints; i++) {
 			
 			// Ignore leading empty spaces
-			while (col < s->width && s->data[row * s->width + col] == 0) {
+			while (col < s->width && s->data[row * s->width + col] == EMPTY) {
 				col++;
 			}
 
