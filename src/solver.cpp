@@ -170,6 +170,37 @@ void solve(Puzzle p, Solution solu) {
 					if (solu->set(i, k, EMPTY)) progress = true;
 				}
 			}
+            // Rule 1.3
+            for(int j = 0; j < size; j++){
+                //start case
+        		int start = solv->row_runs[i][j].s;
+                if((start-1) >= 0 && solu->data[i * solu->width + start] > 0){
+                    bool len1 = true;
+                    for(int k = 0; k < j; k++){
+                        int diffstart = solv->row_runs[i][k].s;
+                        int diffend = solv->row_runs[i][k].e;
+                        if(solv->row_runs[i][k].l != 1 || !(diffstart < start && diffend > start)){
+                            len1 = false;
+                            break;
+                        }
+                    }
+                    if(len1){if(solu->set(i,start-1,EMPTY)) progress = true;} 
+                }
+                //end case 
+				int end = solv->row_runs[i][j].e;
+                if((end+1) < p->width && solu->data[i * solu->width + end] > 0){
+                    bool len1 = true;
+                    for(int k = j+1; k < size; k++){
+                        int diffstart = solv->row_runs[i][k].s;
+                        int diffend = solv->row_runs[i][k].e;
+                        if(solv->row_runs[i][k].l != 1 || !(diffstart < end && diffend > end)){
+                            len1 = false;
+                            break;
+                        }
+                    }
+                    if(len1){if(solu->set(i,end+1,EMPTY)) progress = true;} 
+                }
+            }
 
 			// Rule 2.1
 			for (int j = 1; j < size; j++) {
@@ -265,6 +296,37 @@ void solve(Puzzle p, Solution solu) {
 					if (solu->set(k, i, EMPTY)) progress = true;
 				}
 			}
+            // Rule 1.3
+            for(int j = 0; j < size; j++){
+                //start case
+        		int start = solv->col_runs[i][j].s;
+                if((start-1) >= 0 && solu->data[solu->width*start + i] > 0){
+                    bool len1 = true;
+                    for(int k = 0; k < j; k++){
+                        int diffstart = solv->col_runs[i][k].s;
+                        int diffend = solv->col_runs[i][k].e;
+                        if(solv->col_runs[i][k].l != 1 || !(diffstart < start && diffend > start)){
+                            len1 = false;
+                            break;
+                        }
+                    }
+                    if(len1){if(solu->set(start-1,i,EMPTY)) progress = true;}
+                }
+                //end case 
+				int end = solv->col_runs[i][j].e;
+                if((end+1) < p->height && solu->data[solu->width*end + i] > 0){
+                    bool len1 = true;
+                    for(int k = j+1; k < size; k++){
+                        int diffstart = solv->col_runs[i][k].s;
+                        int diffend = solv->col_runs[i][k].e;
+                        if(solv->col_runs[i][k].l != 1 || !(diffstart < end && diffend > end)){
+                            len1 = false;
+                            break;
+                        }
+                    }
+                    if(len1){if(solu->set(end+1,i,EMPTY)) progress = true;}
+                }
+            }
 
 			// Rule 2.1
 			for (int j = 1; j < size; j++) {
@@ -283,6 +345,7 @@ void solve(Puzzle p, Solution solu) {
 					progress = true;
 				}
 			}
+
 
 			// Rule 2.2
 			for (int j = 0; j < size; j++) {
