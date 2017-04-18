@@ -210,11 +210,11 @@ void solve(Puzzle p, Solution solu) {
                 int cell = solu->data[i*solu->width + j];
                 if(cell > 0){
                     if(start_start == -1) start_start = j;
-                    else if(start_end != -1) end_start = j; 
+                    if(start_end != -1) end_start = j; 
                 }
-                else if(cell == UNKNOWN){
-                    if(start_start != -1 && start_end == -1) start_end = j;
-                    if(end_start != -1 && end_end == -1){//Found black segment - unknown - black segment
+                else{
+                    if(cell == UNKNOWN && start_start != -1 && start_end == -1) start_end = j;
+                    else if(end_start != -1 && end_end == -1){//Found black segment - unknown - black segment
                         end_end = j; 
                         int startlen = start_end - start_start;
                         int endlen = end_end - end_start; 
@@ -231,15 +231,15 @@ void solve(Puzzle p, Solution solu) {
                                 max = std::max(max,runlen);
                                 min = std::min(min,k); 
                             }
-                            else break; 
+                            else if (min < size) break; 
                         }
                         if(max < totallen){ if(solu->set(i,targetcell,EMPTY)) progress = true;}
                         lower_run = min; 
-                        start_start = end_start, start_end = end_end, end_start = -1, end_end = -1;//start = end 
-                    } 
-                }
-                else{
-                    start_start = -1, start_end = -1, end_start = -1, end_end = -1;
+                        if(cell == UNKNOWN){start_start = end_start, start_end = end_end, end_start = -1, end_end = -1;}//start = end 
+                    }
+                    else{
+                        start_start = -1, start_end = -1, end_start = -1, end_end = -1;
+                    }
                 }
             }
             // Rule 1.5
@@ -387,8 +387,8 @@ void solve(Puzzle p, Solution solu) {
                     if(start_start == -1) start_start = j;
                     else if(start_end != -1) end_start = j; 
                 }
-                else if(cell == UNKNOWN){
-                    if(start_start != -1 && start_end == -1) start_end = j;
+                else{
+                    if(cell == UNKNOWN && start_start != -1 && start_end == -1) start_end = j;
                     if(end_start != -1 && end_end == -1){//Found black segment - unknown - black segment
                         end_end = j; 
                         int startlen = start_end - start_start;
@@ -406,15 +406,15 @@ void solve(Puzzle p, Solution solu) {
                                 max = std::max(max,runlen);
                                 min = std::min(min,k); 
                             }
-                            else break; 
+                            else if(min < size) break;//If we can find one and then fail  
                         }
                         if(max < totallen){ if(solu->set(targetcell,i,EMPTY)) progress = true;}
                         lower_run = min; 
-                        start_start = end_start, start_end = end_end, end_start = -1, end_end = -1;//start = end 
+                        if(cell == UNKNOWN){start_start = end_start, start_end = end_end, end_start = -1, end_end = -1;}//start = end 
                     } 
-                }
-                else{
-                    start_start = -1, start_end = -1, end_start = -1, end_end = -1;
+                     else{
+                        start_start = -1, start_end = -1, end_start = -1, end_end = -1;
+                    }
                 }
             }
             
