@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <fstream> //file reading
+#include <fstream>	// File reading
 #include "puzzle.h"
 #include "solver.h"
 #include <vector>
@@ -20,13 +20,13 @@ int main(int argc, char *argv[]) {
     myfile.open(argv[1]);
     int w = 0, h = 0;
     vector<int> r_sizes,r_nums,r_colors,c_sizes, c_nums,c_colors;
-    //Export from here: http://webpbn.com/export.cgi 
-    //Option: Format for Andrew Makhorin's pbnsol nonogram solver. Not for multi-color puzzles.
+    // Export from here: http://webpbn.com/export.cgi 
+    // Option: Format for Andrew Makhorin's pbnsol nonogram solver. Not for multi-color puzzles.
     while(getline(myfile,line))
     {
-        if(line[0] == '*'){continue;}
-        if(line[0] == '&'){row = false; continue;}
-        if(row){
+        if (line[0] == '*') { continue; }
+        if (line[0] == '&') { row = false; continue; }
+        if (row) {
             h++;
             string buf; // Have a buffer string
             stringstream ss(line); // Insert the string into a stream
@@ -35,22 +35,22 @@ int main(int argc, char *argv[]) {
                 tokens.push_back(buf);
 
             r_sizes.push_back(tokens.size());
-            for(size_t i = 0; i < tokens.size(); i++){
+            for(size_t i = 0; i < tokens.size(); i++) {
                 r_nums.push_back(stoi(tokens[i])); 
                 r_colors.push_back(1);
             }
 
         }
-        else{
+        else {
             w++;
-            string buf; // Have a buffer string
-            stringstream ss(line); // Insert the string into a stream
-            vector<string> tokens; // Create vector to hold our words
+            string buf;	// Have a buffer string
+            stringstream ss(line);	// Insert the string into a stream
+            vector<string> tokens;	// Create vector to hold our words
             while (ss >> buf)
                 tokens.push_back(buf);
 
             c_sizes.push_back(tokens.size());
-            for(size_t i = 0; i < tokens.size(); i++){
+            for (size_t i = 0; i < tokens.size(); i++) {
                 c_nums.push_back(stoi(tokens[i])); 
                 c_colors.push_back(1);
             }
@@ -109,30 +109,6 @@ int main(int argc, char *argv[]) {
 	printf("\n");
 
 	Solution s = initialize_solution(w, h);
-	// for (int i = 0; i < w * h; i++) {
-	// 	if (i >= 9 && i <= 12)
-	// 		s.data[i] = 1;
-	// 	if (i >= 17 && i <= 22)
-	// 		s.data[i] = 1;
-	// 	if (i >= 25 && i <= 26)
-	// 		s.data[i] = 1;
-	// 	if (i >= 29 && i <= 30)
-	// 		s.data[i] = 1;
-	// 	if (i >= 33 && i <= 34)
-	// 		s.data[i] = 1;
-	// 	if (i >= 37 && i <= 38)
-	// 		s.data[i] = 1;
-	// 	if (i >= 41 && i <= 46)
-	// 		s.data[i] = 1;
-	// 	if (i >= 49 && i <= 52)
-	// 		s.data[i] = 1;
-	// 	if (i >= 57 && i <= 58)
-	// 		s.data[i] = 1;
-	// 	if (i >= 65 && i <= 66)
-	// 		s.data[i] = 1;
-	// 	if (i >= 73 && i <= 74)
-	// 		s.data[i] = 1;
-	// }
 	solve(&p, s);
 
 	bool correct = check_solution(&p, s);
