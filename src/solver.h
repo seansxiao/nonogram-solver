@@ -28,8 +28,10 @@ struct solver {
 using Solver = solver*;
 
 struct state {
-	Solver sol;
-	Solution s;
+	Solver solv;
+	Solution solu;
+	int row;
+	int run_index;
 };
 
 using State = state*;
@@ -40,3 +42,4 @@ Solver initialize_solver(Puzzle p);
 void initialize_runs(Puzzle p, Solver sol);
 State create_state(Solver s, Solution sol);
 void solve(Puzzle p, Solution s);
+bool solved(Solution s);
