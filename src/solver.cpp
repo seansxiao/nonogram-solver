@@ -383,7 +383,7 @@ bool solve_helper(Puzzle p, State st) {
 				for (; endCell > prevEnd && solu->data[i * solu->width + endCell] <= 0; endCell--) {}
 
 				int u = solv->row_runs[i][j].l - (endCell - startCell + 1);
-				if (startCell < endCell && u >= 0) {
+				if (startCell <= endCell && u >= 0) {
 					for (int k = startCell + 1; k < endCell; k++) {
 						if (solu->set(i, k, p->row_constraints[i][j].color)) progress = true;
 					}
@@ -410,7 +410,7 @@ bool solve_helper(Puzzle p, State st) {
 					if (solu->data[i * solu->width + k] != EMPTY) {
 						segLen++;
 					}
-					else {
+					if (solu->data[i * solu->width + k] == EMPTY || k == end) {
 						if (segLen >= len)
 							solv->row_runs[i][j].s = index;
 						else {
@@ -425,7 +425,7 @@ bool solve_helper(Puzzle p, State st) {
 					if (solu->data[i * solu->width + k] != EMPTY) {
 						segLen++;
 					}
-					else {
+					if (solu->data[i * solu->width + k] == EMPTY || k == start) {
 						if (segLen >= len)
 							solv->row_runs[i][j].e = index;
 						else {
@@ -637,7 +637,7 @@ bool solve_helper(Puzzle p, State st) {
 				for (; endCell > prevEnd && solu->data[endCell * solu->width + i] <= 0; endCell--) {}
 
 				int u = solv->col_runs[i][j].l - (endCell - startCell + 1);
-				if (startCell < endCell && u >= 0) {
+				if (startCell <= endCell && u >= 0) {
 					for (int k = startCell + 1; k < endCell; k++) {
 						if (solu->set(k, i, p->col_constraints[i][j].color)) progress = true;
 					}
@@ -664,7 +664,7 @@ bool solve_helper(Puzzle p, State st) {
 					if (solu->data[k * solu->width + i] != EMPTY) {
 						segLen++;
 					}
-					else {
+					if (solu->data[k * solu->width + i] == EMPTY || k == end) {
 						if (segLen >= len)
 							solv->col_runs[i][j].s = index;
 						else {
@@ -679,7 +679,7 @@ bool solve_helper(Puzzle p, State st) {
 					if (solu->data[k * solu->width + i] != EMPTY) {
 						segLen++;
 					}
-					else {
+					if (solu->data[k * solu->width + i] == EMPTY || k == start) {
 						if (segLen >= len)
 							solv->col_runs[i][j].e = index;
 						else {
