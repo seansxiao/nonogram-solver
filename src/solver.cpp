@@ -374,6 +374,35 @@ bool solve_helper(Puzzle p, State st) {
 				}
 			}
 
+			// Rule 2.3
+			for (int j = 1; j < size - 1; j++) {
+				int start = solv->row_runs[i][j].s;
+				int end = solv->row_runs[i][j].e;
+				int len = solv->row_runs[i][j].l;
+				int color = p->row_constraints[i][j].color;
+				int segStart = start;
+				int segEnd = segStart - 1;
+				for (int k = start; k <= end; k++) {
+					if (solu->data[i * solu->width + k] == color) {
+						segEnd = k;
+					}
+					else {
+						if (segEnd - segStart + 1 > len) {
+							if (segEnd <= solv->row_runs[i][j-1].e && segStart < solv->row_runs[i][j+1].s) {
+								solv->row_runs[i][j].s = segEnd + 2;
+								progress = true;
+							}
+							if (segStart >= solv->row_runs[i][j+1].s && segEnd > solv->row_runs[i][j-1].e) {
+								solv->row_runs[i][j].e = segStart - 2;
+								progress = true;
+							}
+						}
+						segStart = k + 1;
+						segEnd = segStart - 1;
+					}
+				}
+			}
+
 			// ---- PART 3 ----
 			// Rule 3.1
 			for (int j = 0; j < size; j++) {
@@ -622,6 +651,35 @@ bool solve_helper(Puzzle p, State st) {
 					if (nextCell != EMPTY && nextCell != UNKNOWN) {
 						solv->col_runs[i][j].e--;
 						progress = true;
+					}
+				}
+			}
+
+			// Rule 2.3
+			for (int j = 1; j < size - 1; j++) {
+				int start = solv->col_runs[i][j].s;
+				int end = solv->col_runs[i][j].e;
+				int len = solv->col_runs[i][j].l;
+				int color = p->col_constraints[i][j].color;
+				int segStart = start;
+				int segEnd = segStart - 1;
+				for (int k = start; k <= end; k++) {
+					if (solu->data[k * solu->width + i] == color) {
+						segEnd = k;
+					}
+					else {
+						if (segEnd - segStart + 1 > len) {
+							if (segEnd <= solv->col_runs[i][j-1].e && segStart < solv->col_runs[i][j+1].s) {
+								solv->col_runs[i][j].s = segEnd + 2;
+								progress = true;
+							}
+							if (segStart >= solv->col_runs[i][j+1].s && segEnd > solv->col_runs[i][j-1].e) {
+								solv->col_runs[i][j].e = segStart - 2;
+								progress = true;
+							}
+						}
+						segStart = k + 1;
+						segEnd = segStart - 1;
 					}
 				}
 			}
