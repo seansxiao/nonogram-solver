@@ -466,6 +466,47 @@ bool solve_helper(Puzzle p, State st) {
 					}
 				}
 			}
+
+			// Rule 3.3-1
+			/*for (int j = 0; j < size; j++) {
+				int start = solv->row_runs[i][j].s;
+				int len = solv->row_runs[i][j].l;
+				int color = p->row_constraints[i][j].color;
+				if (solu->data[i * solu->width + start] == color &&
+					(j == 0 || solv->row_runs[i][j-1].e < start)) {
+					for (int k = start + 1; k <= start + len - 1; k++) {
+						if (solu->set(i, k, color)) progress = true;
+					}
+					if (start - 1 >= 0)
+						if (solu->set(i, start - 1, EMPTY)) progress = true;
+					if (start + len <= width - 1)
+						if (solu->set(i, start + len, EMPTY)) progress = true;
+					solv->row_runs[i][j].e = start + len - 1;
+					if (j < size - 1 && solv->row_runs[i][j+1].s <= solv->row_runs[i][j].e) {
+						solv->row_runs[i][j+1].s = solv->row_runs[i][j].e + 2;
+						progress = true;
+					}
+					if (j > 0 && solv->row_runs[i][j-1].e == start - 1){
+						solv->row_runs[i][j-1].e = start - 2;
+						progress = true;
+					}
+				}
+			}*/
+
+			// Rule 3.3-2
+			for (int j = 0; j < size; j++) {
+				int start = solv->row_runs[i][j].s;
+				int end = solv->row_runs[i][j].e;
+				int color = p->row_constraints[i][j].color;
+				int black = start;
+				for (; black < end && solu->data[i * solu->width + black] != color; black++) {}
+				int empty = black;
+				for (; empty < end && solu->data[i * solu->width + empty] != color; empty++) {}
+				if (empty != end && empty > black) {
+					solv->row_runs[i][j].e = empty - 1;
+					progress = true;
+				}
+			}
 		}
 
 		// =========================
@@ -745,6 +786,48 @@ bool solve_helper(Puzzle p, State st) {
 							index = k - 1;
 						}
 					}
+				}
+			}
+
+			// Rule 3.3-1
+			/*for (int j = 0; j < size; j++) {
+				int start = solv->col_runs[i][j].s;
+				int len = solv->col_runs[i][j].l;
+				int color = p->col_constraints[i][j].color;
+				if (solu->data[start * solu->width + i] == color &&
+					(j == 0 || solv->col_runs[i][j-1].e < start)) {
+					for (int k = start + 1; k <= start + len - 1; k++) {
+						if (solu->set(k, i, color)) progress = true;
+					}
+					if (start - 1 >= 0 && solu->set(start - 1, i, EMPTY)) progress = true;
+					if (start + len <= height - 1 && solu->set(start + len, i, EMPTY)) progress = true;
+					if (solv->col_runs[i][j].e > start + len - 1) {
+						solv->col_runs[i][j].e = start + len - 1;
+						progress = true;
+					}
+					if (j < size - 1 && solv->col_runs[i][j+1].s <= solv->col_runs[i][j].e) {
+						solv->col_runs[i][j+1].s = solv->col_runs[i][j].e + 2;
+						progress = true;
+					}
+					if (j > 0 && solv->col_runs[i][j-1].e == start - 1){
+						solv->col_runs[i][j-1].e = start - 2;
+						progress = true;
+					}
+				}
+			}*/
+
+			// Rule 3.3-2
+			for (int j = 0; j < size; j++) {
+				int start = solv->col_runs[i][j].s;
+				int end = solv->col_runs[i][j].e;
+				int color = p->col_constraints[i][j].color;
+				int black = start;
+				for (; black < end && solu->data[black * solu->width + i] != color; black++) {}
+				int empty = black;
+				for (; empty < end && solu->data[empty * solu->width + i] != color; empty++) {}
+				if (empty != end && empty > black) {
+					solv->col_runs[i][j].e = empty - 1;
+					progress = true;
 				}
 			}
 		}
