@@ -293,46 +293,62 @@ bool solve_helper(Puzzle p, State st) {
                     }
                 }
             }
+           // Rule 1.5
+            int prevEmpty = -1;  
+            for(int j = 1; j < p -> width; j++){
+                int index = i*solu->width + j;
+                int lower_run = 0; 
+                if(solu->data[index-1] == EMPTY) prevEmpty = j-1; 
+                if(solu->data[index] > 0 && solu->data[index-1] <= 0){
 
-            /* // Rule 1.5 */
-            /* int prevEmpty = -1; */  
-            /* for(int j = 1; j < p -> width; j++){ */
-            /*     int index = i*solu->width + j; */
-            /*     int lower_run = 0; */ 
-            /*     if(solu->data[index-1] == EMPTY) prevEmpty = j-1; */ 
-            /*     if(solu->data[index] > 0 && solu->data[index-1] <= 0){ */
-
-            /*         int minlen = p -> width; */
-            /*         int minindex = size; */ 
-            /*         for(int k = lower_run; k < size; k++){ */
-            /*             int runstart = solv->row_runs[i][k].s; */
-            /*             int runend = solv->row_runs[i][k].e; */
-            /*             int runlen = solv->row_runs[i][k].l; */
-            /*             if(runstart <= j && runend >= j){ */
-            /*                 minindex = std::min(minindex,k); */ 
-            /*                 minlen = std::min(minlen, runlen); */ 
-            /*             } */
-            /*             else if (minlen < p->width) break; */
-            /*             lower_run = minindex; */ 
-            /*         } */
-            /*         if(prevEmpty != -1 && prevEmpty >= (j-minlen+1) && prevEmpty <= (j-1)){ */
-            /*             //Color each cell in between */
-            /*             for(int k = prevEmpty; k < j; k++){ */
-            /*                 if(solu->set(i,k,1)) progress = true; */ 
-            /*             } */
-            /*         } */
-            /*         //Find prevAfter */
-            /*         int prevAfter = -1; */
-            /*         for(int k = j+1; k <= j+minlen-1; k++){ */
-            /*             if(solu->data[i*p->width + k] == EMPTY){prevAfter = k; break;} */
-            /*         } */
-            /*         if(prevAfter != -1){ */
-            /*              for(int k = j+1; k < prevAfter; k++){ */
-            /*                 if(solu->set(i,k,1)) progress = true; */ 
-            /*             } */
-            /*         } */
-            /*     } */
-            /* } */
+                    int segmentLength = 1; 
+                    for(int k = j+1; k < p->width; k++){
+                        if(solu->data[i*p->width + k] > 0){
+                            segmentLength++;
+                        }
+                        else break; 
+                    }
+                    int minlen = p -> width;
+                    int minindex = size;
+                    bool samesize = true; 
+                    for(int k = lower_run; k < size; k++){
+                        int runstart = solv->row_runs[i][k].s;
+                        int runend = solv->row_runs[i][k].e;
+                        int runlen = solv->row_runs[i][k].l;
+                        if(runstart <= j && runend >= j){
+                            if(runlen != segmentLength) samesize = false;
+                            minindex = std::min(minindex,k); 
+                            minlen = std::min(minlen, runlen); 
+                        }
+                        //else if (minlen < p->width) break;
+                        lower_run = minindex; 
+                    }
+                    if(samesize){
+                            //if(solu->set(i,j-1,EMPTY)) progress = true;
+                            //if(solu->set(i,j+segmentLength,EMPTY)) progress=true;
+                            //j = j+segmentLength; //Jump to cell after empty 
+                    } 
+                    else{
+                        if(prevEmpty != -1 && prevEmpty >= (j-minlen+1) && prevEmpty <= (j-1)){
+                            //Color each cell in between
+                            for(int k = j+1; k <= prevEmpty + minlen; k++){
+                                if(solu->set(i,k,1)) progress = true; 
+                            }
+                        }
+                        //Find prevAfter
+                        int prevAfter = -1;
+                        for(int k = j+1; k <= j+minlen-1; k++){
+                            if(solu->data[i*p->width + k] == EMPTY){prevAfter = k; break;}
+                        }
+                        if(prevAfter != -1){
+                             for(int k = prevAfter-minlen; k <= j-1; k++){
+                                if(solu->set(i,k,1)) progress = true; 
+                            }
+                        }
+                    }
+                }
+            }
+>>>>>>> Modify rule 1.5
             
 
 			// ---- PART 2 ----
@@ -616,46 +632,46 @@ bool solve_helper(Puzzle p, State st) {
                 }
             }
 
-            /* // Rule 1.5 */
-            /* int prevEmpty = -1; */  
-            /* for(int j = 1; j < p -> height; j++){ */
-            /*     int prevIndex = (j-1)*solu->width + i; */
-            /*     int index = j*solu->width + i; */
-            /*     int lower_run = 0; */ 
-            /*     if(solu->data[prevIndex] == EMPTY) prevEmpty = j-1; */ 
-            /*     if(solu->data[index] > 0 && solu->data[prevIndex] <= 0){ */
+            // Rule 1.5
+            int prevEmpty = -1;  
+            for(int j = 1; j < p -> height; j++){
+                int prevIndex = (j-1)*solu->width + i;
+                int index = j*solu->width + i;
+                int lower_run = 0; 
+                if(solu->data[prevIndex] == EMPTY) prevEmpty = j-1; 
+                if(solu->data[index] > 0 && solu->data[prevIndex] <= 0){
 
-            /*         int minlen = p -> height; */
-            /*         int minindex = size; */ 
-            /*         for(int k = lower_run; k < size; k++){ */
-            /*             int runstart = solv->col_runs[i][k].s; */
-            /*             int runend = solv->col_runs[i][k].e; */
-            /*             int runlen = solv->col_runs[i][k].l; */
-            /*             if(runstart <= j && runend >= j){ */
-            /*                 minindex = std::min(minindex,k); */ 
-            /*                 minlen = std::min(minlen, runlen); */ 
-            /*             } */
-            /*             else if (minlen < p->height) break; */
-            /*             lower_run = minindex; */ 
-            /*         } */
-            /*         if(prevEmpty != -1 && prevEmpty >= (j-minlen+1) && prevEmpty <= (j-1)){ */
-            /*             //Color each cell in between */
-            /*             for(int k = prevEmpty; k < j; k++){ */
-            /*                 if(solu->set(k,i,1)) progress = true; */ 
-            /*             } */
-            /*         } */
-            /*         //Find prevAfter */
-            /*         int prevAfter = -1; */
-            /*         for(int k = j+1; k <= j+minlen-1; k++){ */
-            /*             if(solu->data[k*p->width + i] == EMPTY){prevAfter = k; break;} */
-            /*         } */
-            /*         if(prevAfter != -1){ */
-            /*              for(int k = j+1; k < prevAfter; k++){ */
-            /*                 if(solu->set(k,i,1)) progress = true; */ 
-            /*             } */
-            /*         } */       
-            /*     } */
-            /* } */
+                    int minlen = p -> height;
+                    int minindex = size; 
+                    for(int k = lower_run; k < size; k++){
+                        int runstart = solv->col_runs[i][k].s;
+                        int runend = solv->col_runs[i][k].e;
+                        int runlen = solv->col_runs[i][k].l;
+                        if(runstart <= j && runend >= j){
+                            minindex = std::min(minindex,k); 
+                            minlen = std::min(minlen, runlen); 
+                        }
+                        else if (minlen < p->height) break;
+                        lower_run = minindex; 
+                    }
+                    if(prevEmpty != -1 && prevEmpty >= (j-minlen+1) && prevEmpty <= (j-1)){
+                        //Color each cell in between
+                        for(int k = j+1; k <= prevEmpty+minlen; k++){
+                            if(solu->set(k,i,1)) progress = true; 
+                        }
+                    }
+                    //Find prevAfter
+                    int prevAfter = -1;
+                    for(int k = j+1; k <= j+minlen-1; k++){
+                        if(solu->data[k*p->width + i] == EMPTY){prevAfter = k; break;}
+                    }
+                    if(prevAfter != -1){
+                         for(int k = prevAfter-minlen; k <= j-1 ; k++){
+                            if(solu->set(k,i,1)) progress = true; 
+                        }
+                    }       
+                }
+            }
             
             // ---- PART 2 ----
 			// Rule 2.1
