@@ -6,11 +6,11 @@ struct run {
 	int l;
 };
 
-struct cell {
-	run** runs;
-	int count;
-	bool* present;
-};
+// struct cell {
+// 	run** runs;
+// 	int count;
+// 	bool* present;
+// };
 
 struct solver {
 	int width;
@@ -22,10 +22,14 @@ struct solver {
 	run** col_runs;
 	int* col_sizes;
 
-	cell** cells;
+	// cell** cells;
 };
 
 using Solver = solver*;
+
+Solver initialize_solver(Puzzle p);
+void initialize_runs(Puzzle p, Solver solv);
+void free_solver(Solver solv);
 
 struct state {
 	Solver solv;
@@ -36,10 +40,11 @@ struct state {
 
 using State = state*;
 
-
-
-Solver initialize_solver(Puzzle p);
-void initialize_runs(Puzzle p, Solver sol);
 State create_state(Solver s, Solution sol);
-void solve(Puzzle p, Solution s);
+void free_state(State st);
+
+
+
+bool solve(Puzzle p, Solution s);
+bool solve_helper(Puzzle p, State st);
 bool solved(Solution s);
