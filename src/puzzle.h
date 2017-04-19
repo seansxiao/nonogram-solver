@@ -100,10 +100,11 @@ struct solution {
 
 	void print_solution() {
 		for (int i = 0; i < height; i++) {
+			printf("|");
 			for (int j = 0; j < width; j++) {
 				int color = data[i * width + j];
 				if (color == EMPTY)
-					printf("-");
+					printf(" ");
 				else if (color == 1)
 					printf("X");
 				else if (color == UNKNOWN)
@@ -111,7 +112,7 @@ struct solution {
 				else
 					printf(" ");
 			}
-			printf("\n");
+			printf("|\n");
 		}
 		printf("\n");
 	}
