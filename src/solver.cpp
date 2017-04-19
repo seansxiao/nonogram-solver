@@ -220,6 +220,7 @@ bool solve_helper(Puzzle p, State st) {
 					if (solu->set(i, k, EMPTY)) progress = true;
 				}
 			}
+
             // Rule 1.3
             for(int j = 0; j < size; j++){
                 //start case
@@ -252,7 +253,7 @@ bool solve_helper(Puzzle p, State st) {
                 }
             }
             
-            //Rule 1.4
+            // Rule 1.4
             int start_start = -1, start_end = -1;//Ends are not inclusive 
             int end_start = -1, end_end = -1;//Ends are not inclusive
             int lower_run = 0; //lower bound of runs we have to check for overlap 
@@ -292,6 +293,7 @@ bool solve_helper(Puzzle p, State st) {
                     }
                 }
             }
+
             /* // Rule 1.5 */
             /* int prevEmpty = -1; */  
             /* for(int j = 1; j < p -> width; j++){ */
@@ -503,7 +505,7 @@ bool solve_helper(Puzzle p, State st) {
                 }
             }
 
-            //Rule 1.4
+            // Rule 1.4
             int start_start = -1, start_end = -1;//Ends are not inclusive 
             int end_start = -1, end_end = -1;//Ends are not inclusive
             int lower_run = 0; //lower bound of runs we have to check for overlap 
