@@ -693,8 +693,6 @@ bool solve_helper(Puzzle p, State st) {
 
 		solu->print_solution();
 
-        printf("start: %d, end: %d", solv->row_runs[0][0].s, solv->row_runs[0][0].e);
-
 		iterations++;
 	}
 
@@ -747,7 +745,6 @@ bool solve_helper(Puzzle p, State st) {
 		return true;
 	}
 
-	// solu->fill_unknown();
 	return false;
 }
 

@@ -1,5 +1,6 @@
 #include "puzzle.h"
-#include <algorithm> 
+#include <algorithm>
+
 struct run {
 	int s;
 	int e;
