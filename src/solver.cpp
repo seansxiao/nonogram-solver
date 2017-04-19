@@ -588,7 +588,6 @@ bool solve_helper(Puzzle p, State st) {
             /* } */
             
             // ---- PART 2 ----
-
 			// Rule 2.1
 			for (int j = 1; j < size; j++) {
 				int currentStart = solv->col_runs[i][j].s;
@@ -607,7 +606,6 @@ bool solve_helper(Puzzle p, State st) {
 				}
 			}
 
-
 			// Rule 2.2
 			for (int j = 0; j < size; j++) {
 				int currentStart = solv->col_runs[i][j].s;
@@ -619,7 +617,7 @@ bool solve_helper(Puzzle p, State st) {
 						progress = true;
 					}
 				}
-				if (currentEnd < solu->width - 1) {
+				if (currentEnd < solu->height - 1) {
 					int nextCell = solu->data[(currentEnd + 1) * solu->width + i];
 					if (nextCell != EMPTY && nextCell != UNKNOWN) {
 						solv->col_runs[i][j].e--;
