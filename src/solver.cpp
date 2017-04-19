@@ -93,12 +93,12 @@ void initialize_runs(Puzzle p, Solver solv) {
 }
 
 void free_solver(Solver solv) {
-	for (int i = 0; i < solv->height; i++) {
-		free(solv->row_runs[i]);
-	}
-	for (int i = 0; i < solv->width; i++) {
-		free(solv->col_runs[i]);
-	}
+	// for (int i = 0; i < solv->height; i++) {
+	// 	free(solv->row_runs[i]);
+	// }
+	// for (int i = 0; i < solv->width; i++) {
+	// 	free(solv->col_runs[i]);
+	// }
 	free(solv->row_runs);
 	free(solv->col_runs);
 	free(solv->row_sizes);
@@ -146,7 +146,7 @@ State create_state(Puzzle p, Solution solu, Solver solv) {
 }
 
 void free_state(State st) {
-	free_solver(st->solv);
+	// free_solver(st->solv);
 	free(st->solu->data);
 	free(st->solu);
 	free(st);
@@ -165,8 +165,12 @@ bool solve(Puzzle p, Solution solu) {
 	st->run_index = -1;
 	solve_helper(p, st);
 
-	// solu->fill_unknown();
-	solu = st->solu;
+	for (int i = 0; i < solu->width * solu->height; i++) {
+		solu->data[i] = st->solu->data[i];
+	}
+
+	free_state(st);
+
 	return false;
 }
 
@@ -282,6 +286,43 @@ bool solve_helper(Puzzle p, State st) {
 					}
 				}
 			}
+
+			// Rule 3.2
+			for (int j = 0; j < size; j++) {
+				int start = solv->row_runs[i][j].s;
+				int end = solv->row_runs[i][j].e;
+				int len = solv->row_runs[i][j].l;
+				int segLen = 0;
+				int index = start;
+				for (int k = start; k <= end; k++) {
+					if (solu->data[i * solu->width + k] != EMPTY) {
+						segLen++;
+					}
+					else {
+						if (segLen >= len)
+							solv->row_runs[i][j].s = index;
+						else {
+							segLen = 0;
+							index = k + 1;
+						}
+					}
+				}
+				segLen = 0;
+				index = end;
+				for (int k = end; k >= start; k--) {
+					if (solu->data[i * solu->width + k] != EMPTY) {
+						segLen++;
+					}
+					else {
+						if (segLen >= len)
+							solv->row_runs[i][j].e = index;
+						else {
+							segLen = 0;
+							index = k - 1;
+						}
+					}
+				}
+			}
 		}
 
 		// =========================
@@ -383,14 +424,51 @@ bool solve_helper(Puzzle p, State st) {
 					}
 				}
 			}
+
+			// Rule 3.2
+			for (int j = 0; j < size; j++) {
+				int start = solv->col_runs[i][j].s;
+				int end = solv->col_runs[i][j].e;
+				int len = solv->col_runs[i][j].l;
+				int segLen = 0;
+				int index = start;
+				for (int k = start; k <= end; k++) {
+					if (solu->data[k * solu->width + i] != EMPTY) {
+						segLen++;
+					}
+					else {
+						if (segLen >= len)
+							solv->col_runs[i][j].s = index;
+						else {
+							segLen = 0;
+							index = k + 1;
+						}
+					}
+				}
+				segLen = 0;
+				index = end;
+				for (int k = end; k >= start; k--) {
+					if (solu->data[k * solu->width + i] != EMPTY) {
+						segLen++;
+					}
+					else {
+						if (segLen >= len)
+							solv->col_runs[i][j].e = index;
+						else {
+							segLen = 0;
+							index = k - 1;
+						}
+					}
+				}
+			}
 		}
 
 		solu->print_solution();
 		iterations++;
 	}
 
+	printf("Solution:\n");
 	solu->print_solution();
-	printf("%d, %d\n", solv->col_runs[1][0].s, solv->col_runs[1][0].e);
 
 	// Do DFS if not solved
 	if (false && !solved(solu)) {

@@ -60,7 +60,7 @@ bool check_solution(Puzzle p, Solution s) {
 		for (int i = 0; i < numConstraints; i++) {
 			
 			// Ignore leading empty spaces
-			while (row < s->height && s->data[row * s->width + col] == 0) {
+			while (row < s->height && s->data[row * s->width + col] == EMPTY) {
 				row++;
 			}
 

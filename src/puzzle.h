@@ -99,7 +99,6 @@ struct solution {
 	}
 
 	void print_solution() {
-		printf("Solution:\n");
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
 				int color = data[i * width + j];
