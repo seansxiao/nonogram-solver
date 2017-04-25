@@ -30,7 +30,7 @@ The project can be demo-ed in person by feeding it puzzles and then running the 
 ### Platform Choice:
 We plan on using the GHC machines. These provide 16 execution contexts and 8-wide vector instructions which provide enough resources to test and analyze our performance on.
 
-### Schedule:
+### Preliminary Schedule:
 April 9-15: Manually practice and gain familiarity with solving nonograms. Implement correct sequential algorithms.
 
 April 16-22: Identify areas of parallelism and finish implementing naive parallel solution.
@@ -41,3 +41,24 @@ April 30 - May 6: Finish other parallel solutions.
 
 May 7 - May 12: Analyze results and finish final write-up.
 
+## Checkpoint (April 25)
+Writing a nonogram solver turned out to be harder than we expected. So far we have almost completed the logical solving portion of the program, and it solves a large number of puzzles that only require line-solving techniques (i.e. no guessing). However, in order to solve the rest of the puzzles we have to implement a sort of DFS, which we have yet to do. So far the code is entirely sequential, and we plan on finishing the line solver and DFS before attempting to parallelize the algorithm.
+
+With regard to the goals and deliverables, we have yet to start working on parallelization, but we still expect to be able to accomplish decent speedup. However, because writing the solver was harder than anticipated, it will probably not be as fast as some of the fastest nonogram-solving algorithms that exist.
+
+We will have speedup graphs to show for the parallelism competition, but we will also be able to solve different puzzles on the spot and produce their resulting images. We will be able to run both the sequential and parallel versions side by side in order to compare.
+
+### Revised Schedule:
+April 25: Finish most of the line-solver
+
+April 26 - 28: Complete line-solving algorithm
+
+April 29 - 30: Finish implementing DFS portion of algorithm
+
+May 1 - May 2: Optimize sequential code
+
+May 3 - May 5: Identify areas of parallelization and begin implementing parallel code
+
+May 6 - May 8: Finish parallelization implementation and start optimizing
+
+May 9 - May 12: Analyze results and finish final write-up.
