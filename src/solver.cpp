@@ -483,7 +483,7 @@ bool solve_helper(Puzzle p, State st) {
 			}
 
 			// Rule 3.3-1
-			/*for (int j = 0; j < size; j++) {
+			for (int j = 0; j < size; j++) {
 				int start = solv->row_runs[i][j].s;
 				int len = solv->row_runs[i][j].l;
 				int color = p->row_constraints[i][j].color;
@@ -501,12 +501,12 @@ bool solve_helper(Puzzle p, State st) {
 						solv->row_runs[i][j+1].s = solv->row_runs[i][j].e + 2;
 						progress = true;
 					}
-					if (j > 0 && solv->row_runs[i][j-1].e == start - 1){
+					if (j > 0 && solv->row_runs[i][j-1].e >= start - 1){
 						solv->row_runs[i][j-1].e = start - 2;
 						progress = true;
 					}
 				}
-			}*/
+			}
 
 			// Rule 3.3-2
 			for (int j = 0; j < size; j++) {
@@ -516,8 +516,9 @@ bool solve_helper(Puzzle p, State st) {
 				int black = start;
 				for (; black < end && solu->data[i * solu->width + black] != color; black++) {}
 				int empty = black;
-				for (; empty < end && solu->data[i * solu->width + empty] != color; empty++) {}
-				if (empty != end && empty > black) {
+				for (; empty < end && solu->data[i * solu->width + empty] != EMPTY; empty++) {}
+				if ((j == 0 || start > solv->row_runs[i][j-1].e) &&
+					empty < end && empty > black) {
 					solv->row_runs[i][j].e = empty - 1;
 					progress = true;
 				}
@@ -824,7 +825,7 @@ bool solve_helper(Puzzle p, State st) {
 			}
 
 			// Rule 3.3-1
-			/*for (int j = 0; j < size; j++) {
+			for (int j = 0; j < size; j++) {
 				int start = solv->col_runs[i][j].s;
 				int len = solv->col_runs[i][j].l;
 				int color = p->col_constraints[i][j].color;
@@ -833,22 +834,21 @@ bool solve_helper(Puzzle p, State st) {
 					for (int k = start + 1; k <= start + len - 1; k++) {
 						if (solu->set(k, i, color)) progress = true;
 					}
-					if (start - 1 >= 0 && solu->set(start - 1, i, EMPTY)) progress = true;
-					if (start + len <= height - 1 && solu->set(start + len, i, EMPTY)) progress = true;
-					if (solv->col_runs[i][j].e > start + len - 1) {
-						solv->col_runs[i][j].e = start + len - 1;
-						progress = true;
-					}
+					if (start - 1 >= 0)
+						if (solu->set(start - 1, i, EMPTY)) progress = true;
+					if (start + len <= height - 1)
+						if (solu->set(start + len, i, EMPTY)) progress = true;
+					solv->col_runs[i][j].e = start + len - 1;
 					if (j < size - 1 && solv->col_runs[i][j+1].s <= solv->col_runs[i][j].e) {
 						solv->col_runs[i][j+1].s = solv->col_runs[i][j].e + 2;
 						progress = true;
 					}
-					if (j > 0 && solv->col_runs[i][j-1].e == start - 1){
+					if (j > 0 && solv->col_runs[i][j-1].e >= start - 1){
 						solv->col_runs[i][j-1].e = start - 2;
 						progress = true;
 					}
 				}
-			}*/
+			}
 
 			// Rule 3.3-2
 			for (int j = 0; j < size; j++) {
@@ -858,8 +858,9 @@ bool solve_helper(Puzzle p, State st) {
 				int black = start;
 				for (; black < end && solu->data[black * solu->width + i] != color; black++) {}
 				int empty = black;
-				for (; empty < end && solu->data[empty * solu->width + i] != color; empty++) {}
-				if (empty != end && empty > black) {
+				for (; empty < end && solu->data[empty * solu->width + i] != EMPTY; empty++) {}
+				if ((j == 0 || start > solv->col_runs[i][j-1].e) &&
+					empty < end && empty > black) {
 					solv->col_runs[i][j].e = empty - 1;
 					progress = true;
 				}
