@@ -8,6 +8,7 @@
 #define SAME 0
 #define CONFLICT -1
 
+
 #include <stdio.h>
 #include <stdlib.h>
 

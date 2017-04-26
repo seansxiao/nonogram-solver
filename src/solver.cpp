@@ -270,7 +270,11 @@ bool solve_helper(Puzzle p, State st) {
                             break;
                         }
                     }
-                    if(len1){if(solu->set(i,end+1,EMPTY)) progress = true;} 
+                    if(len1){
+                        int status = solu->set(i,end+1,EMPTY);
+        				//if (status == CONFLICT) conflict = true;
+						if (status == PROGRESS) progress = true;
+                    }
                 }
             }
             
@@ -305,7 +309,11 @@ bool solve_helper(Puzzle p, State st) {
                             }
                             //else if (min < size) break; 
                         }
-                        if(max < totallen){ if(solu->set(i,targetcell,EMPTY)) progress = true;}
+                        if(max < totallen){
+                            int status = solu->set(i,targetcell,EMPTY);
+                            //if(status == CONFLICT) conflict = true;
+                            if(status == PROGRESS) progress = true;
+                        }
                         lower_run = min; 
                         if(cell == UNKNOWN){start_start = end_start, start_end = end_end, end_start = -1, end_end = -1;}//start = end 
                     }
@@ -339,7 +347,9 @@ bool solve_helper(Puzzle p, State st) {
                     if(prevEmpty != -1 && prevEmpty >= (j-minlen+1) && prevEmpty <= (j-1)){
                         //Color each cell in between
                         for(int k = j+1; k <= prevEmpty + minlen; k++){
-                            if(solu->set(i,k,1)) progress = true; 
+                            int status = solu->set(i,k,1); 
+                            //if(status == CONFLICT) conflict = true;
+                            if(status == PROGRESS) progress = true;
                         }
                     }
                     //Find afterEmpty
@@ -349,7 +359,10 @@ bool solve_helper(Puzzle p, State st) {
                     }
                     if(afterEmpty != -1){
                          for(int k = afterEmpty-minlen; k <= j-1; k++){
-                            if(solu->set(i,k,1)) progress = true; 
+                            int status = solu->set(i,k,1); 
+                            //if(status == CONFLICT) conflict = true;
+                            if(status == PROGRESS) progress = true;
+ 
                         }
                     }
                 }
@@ -373,8 +386,14 @@ bool solve_helper(Puzzle p, State st) {
                         }
                     }
                     if(samesize){
-                        if(solu->set(i,j-1,EMPTY)) progress = true;
-                        if(solu->set(i,j+segment-1,EMPTY)) progress=true;
+                        int status = solu->set(i,j-1,EMPTY);
+                        //if(status == CONFLICT) conflict = true;
+                        if(status == PROGRESS) progress = true;
+ 
+                        status = solu->set(i,j+segment-1,EMPTY); 
+                        //if(status == CONFLICT) conflict = true;
+                        if(status == PROGRESS) progress = true;
+ 
                         j = j+segment;
                     } 
                 }
@@ -668,7 +687,7 @@ bool solve_helper(Puzzle p, State st) {
 					}
 					if (len1) {
 						int status = solu->set(start - 1, i, EMPTY);
-						if (status == CONFLICT) conflict = true;
+    					//if (status == CONFLICT) conflict = true;
 						if (status == PROGRESS) progress = true;
 					}
 				}
@@ -684,7 +703,12 @@ bool solve_helper(Puzzle p, State st) {
                             break;
                         }
                     }
-                    if(len1){if(solu->set(end+1,i,EMPTY)) progress = true;}
+                    if(len1){
+                        int status = solu->set(end+1,i,EMPTY);
+    					//if (status == CONFLICT) conflict = true;
+						if (status == PROGRESS) progress = true;
+                    }
+	
                 }
             }
 
@@ -719,7 +743,11 @@ bool solve_helper(Puzzle p, State st) {
                             }
                             //else if(min < size) break;//If we can find one and then fail  
                         }
-                        if(max < totallen){ if(solu->set(targetcell,i,EMPTY)) progress = true;}
+                        if(max < totallen){ 
+                            int status = solu->set(targetcell,i,EMPTY);
+    				    	//if (status == CONFLICT) conflict = true;
+						    if (status == PROGRESS) progress = true;
+                        }
                         lower_run = min; 
                         if(cell == UNKNOWN){start_start = end_start, start_end = end_end, end_start = -1, end_end = -1;}//start = end 
                     } 
@@ -756,7 +784,10 @@ bool solve_helper(Puzzle p, State st) {
                     if(prevEmpty != -1 && prevEmpty >= (j-minlen+1) && prevEmpty <= (j-1)){
                         //Color each cell in between
                         for(int k = j+1; k <= prevEmpty+minlen; k++){
-                            if(solu->set(k,i,1)) progress = true; 
+                            int status = solu->set(k,i,1);  
+    	    				//if (status == CONFLICT) conflict = true;
+			    			if (status == PROGRESS) progress = true;
+	
                         }
                     }
                     //Find afterEmpty
@@ -766,7 +797,10 @@ bool solve_helper(Puzzle p, State st) {
                     }
                     if(afterEmpty != -1){
                          for(int k = afterEmpty-minlen; k <= j-1 ; k++){
-                            if(solu->set(k,i,1)) progress = true; 
+                            int status = solu->set(k,i,1); 
+    				    	//if (status == CONFLICT) conflict = true;
+						    if (status == PROGRESS) progress = true;
+	
                         }
                     }       
                 }
@@ -790,8 +824,14 @@ bool solve_helper(Puzzle p, State st) {
                         }
                     }
                     if(samesize){
-                        if(solu->set(j-1,i,EMPTY)) progress = true;
-                        if(solu->set(j+segment-1,i,EMPTY)) progress=true;
+                        int status = solu->set(j-1,i,EMPTY);
+    					//if (status == CONFLICT) conflict = true;
+						if (status == PROGRESS) progress = true;
+	
+                        status = solu->set(j+segment-1,i,EMPTY);
+    					//if (status == CONFLICT) conflict = true;
+						if (status == PROGRESS) progress = true;
+	
                         j = j+segment;
                     } 
                 }
