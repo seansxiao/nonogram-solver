@@ -235,23 +235,23 @@ bool solve_helper(Puzzle p, State st) {
 							break;
 						}
 					}
-					if (len1) { if (solu->set(i,start-1,EMPTY)) progress = true; } 
-                }
-                // End case 
+					if (len1) { if (solu->set(i,start-1,EMPTY)) progress = true; }
+				}
+				// End case 
 				int end = solv->row_runs[i][j].e;
-                if ((end+1) < p->width && solu->data[i * solu->width + end] > 0) {
-                	bool len1 = true;
-                	for (int k = j+1; k < size; k++) {
-                		int diffstart = solv->row_runs[i][k].s;
-                		int diffend = solv->row_runs[i][k].e;
-                		if (solv->row_runs[i][k].l != 1 || !(diffstart <= end && diffend >= end)) {
-                			len1 = false;
-                			break;
-                		}
-                	}
-                	if(len1) { if(solu->set(i,end+1,EMPTY)) progress = true; }
-                }
-            }
+				if ((end+1) < p->width && solu->data[i * solu->width + end] > 0) {
+					bool len1 = true;
+					for (int k = j+1; k < size; k++) {
+						int diffstart = solv->row_runs[i][k].s;
+						int diffend = solv->row_runs[i][k].e;
+						if (solv->row_runs[i][k].l != 1 || !(diffstart <= end && diffend >= end)) {
+							len1 = false;
+							break;
+						}
+					}
+					if(len1) { if(solu->set(i,end+1,EMPTY)) progress = true; }
+				}
+			}
 
 			// Rule 1.4
 			int start_start = -1, start_end = -1;	// Ends are not inclusive 
