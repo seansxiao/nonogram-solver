@@ -240,6 +240,121 @@ bool solve_helper(Puzzle p, State st) {
 
 			// Rule 1.3
 			for (int j = 0; j < size; j++) {
+				int start = solv->row_runs[i][j].s;
+				int end = solv->row_runs[i][j].e;
+				int color = p->row_constraints[i][j].color;
+
+				if (start >= 1 && solu->data[i * width + start] == color) {
+					bool length1 = true;
+					for (int k = 0; k < j; k++) {
+						if (solv->row_runs[i][k].s <= start && start <= solv->row_runs[i][k].e && solv->row_runs[i][k].l != 1)
+							length1 = false;
+					}
+
+					if (length1) {
+						int status = solu->set(i, start - 1, EMPTY);
+						if (status == CONFLICT) conflict = true;
+						if (status == PROGRESS) progress = true;
+					}
+				}
+
+				if (end <= width - 2 && solu->data[i * width + end] == color) {
+					bool length1 = true;
+					for (int k = j + 1; k < size; k++) {
+						if (solv->row_runs[i][k].s <= end && end <= solv->row_runs[i][k].e && solv->row_runs[i][k].l != 1)
+							length1 = false;
+					}
+
+					if (length1) {
+						int status = solu->set(i, end + 1, EMPTY);
+						if (status == CONFLICT) conflict = true;
+						if (status == PROGRESS) progress = true;
+					}
+				}
+			}
+
+			// Rule 1.4
+			for (int j = 1; j < width - 1; j++) {
+				if (solu->data[i * width + (j - 1)] > 0 && solu->data[i * width + j] == UNKNOWN && solu->data[i * width + (j + 1)] > 0) {
+					int len = 1;
+					for (int k = j - 1; k >= 0 && solu->data[i * width + k] > 0; k--) { len++; }
+					for (int k = j + 1; k < width && solu->data[i * width + k] > 0; k++) { len++; }
+
+					int maxLen = 0;
+					for (int k = 0; k < size; k++) {
+						if (solv->row_runs[i][k].s <= j - 1 && solv->row_runs[i][k].e >= j + 1 && solv->row_runs[i][k].l > maxLen)
+							maxLen = solv->row_runs[i][k].l;
+					}
+
+					if (len > maxLen) {
+						int status = solu->set(i, j, EMPTY);
+						if (status == CONFLICT) conflict = true;
+						if (status == PROGRESS) progress = true;
+					}
+				}
+			}
+
+			// Rule 1.5
+			for (int j = 1; j < width; j++) {
+				int color = 1;
+
+				if ((solu->data[i * width + (j - 1)] == EMPTY || solu->data[i * width + (j - 1)] == UNKNOWN) && solu->data[i * width + j] > 0) {
+					int minLen = width + 1;
+					for (int k = 0; k < size; k++) {
+						if (solv->row_runs[i][k].s <= j && solv->row_runs[i][k].e >= j && solv->row_runs[i][k].l < minLen)
+							minLen = solv->row_runs[i][k].l;
+					}
+
+					if (minLen <= width) {
+						int empty = j - 1;
+						for (; empty >= j - minLen && empty >= 0 && solu->data[i * width + empty] != EMPTY; empty--) {}
+						if (empty >= j - minLen + 1) {
+							for (int k = j + 1; k <= empty + minLen; k++) {
+								int status = solu->set(i, k, color);
+								if (status == CONFLICT) conflict = true;
+								if (status == PROGRESS) progress = true;
+							}
+						}
+
+						empty = j + 1;
+						for (; empty <= j + minLen && empty < width && solu->data[i * width + empty] != EMPTY; empty++) {}
+						if (empty <= j + minLen - 1) {
+							for (int k = empty - minLen; k <= j - 1; k++) {
+								int status = solu->set(i, k, color);
+								if (status == CONFLICT) conflict = true;
+								if (status == PROGRESS) progress = true;
+							}
+						}
+					}
+
+
+					int len = -1;
+					int start = j;
+					int end = j;
+					for (; start >= 0 && solu->data[i * width + start] > 0; start--) { len++; }
+					start++;
+					for (; end < width && solu->data[i * width + end] > 0; end++) { len++; }
+					end--;
+
+					bool sameLen = true;
+					for (int k = 0; k < size; k++) {
+						if (solv->row_runs[i][k].s <= j && solv->row_runs[i][k].e >= j && solv->row_runs[i][k].l != len)
+							sameLen = false;
+					}
+
+					if (sameLen) {
+						int status = solu->set(i, start - 1, EMPTY);
+						if (status == CONFLICT) conflict = true;
+						if (status == PROGRESS) progress = true;
+						status = solu->set(i, end + 1, EMPTY);
+						if (status == CONFLICT) conflict = true;
+						if (status == PROGRESS) progress = true;
+					}
+				}
+			}
+
+			// Rule 1.3
+			/*for (int j = 0; j < size; j++) {
 				// Start case
 				int start = solv->row_runs[i][j].s;
 				if ((start-1) >= 0 && solu->data[i * solu->width + start] > 0) {
@@ -272,7 +387,7 @@ bool solve_helper(Puzzle p, State st) {
                     }
                     if(len1){
                         int status = solu->set(i,end+1,EMPTY);
-        				//if (status == CONFLICT) conflict = true;
+        				if (status == CONFLICT) conflict = true;
 						if (status == PROGRESS) progress = true;
                     }
                 }
@@ -311,7 +426,7 @@ bool solve_helper(Puzzle p, State st) {
                         }
                         if(max < totallen){
                             int status = solu->set(i,targetcell,EMPTY);
-                            //if(status == CONFLICT) conflict = true;
+                            if(status == CONFLICT) conflict = true;
                             if(status == PROGRESS) progress = true;
                         }
                         lower_run = min; 
@@ -348,7 +463,7 @@ bool solve_helper(Puzzle p, State st) {
                         //Color each cell in between
                         for(int k = j+1; k <= prevEmpty + minlen; k++){
                             int status = solu->set(i,k,1); 
-                            //if(status == CONFLICT) conflict = true;
+                            if(status == CONFLICT) conflict = true;
                             if(status == PROGRESS) progress = true;
                         }
                     }
@@ -360,7 +475,7 @@ bool solve_helper(Puzzle p, State st) {
                     if(afterEmpty != -1){
                          for(int k = afterEmpty-minlen; k <= j-1; k++){
                             int status = solu->set(i,k,1); 
-                            //if(status == CONFLICT) conflict = true;
+                            if(status == CONFLICT) conflict = true;
                             if(status == PROGRESS) progress = true;
  
                         }
@@ -387,17 +502,17 @@ bool solve_helper(Puzzle p, State st) {
                     }
                     if(samesize){
                         int status = solu->set(i,j-1,EMPTY);
-                        //if(status == CONFLICT) conflict = true;
+                        if(status == CONFLICT) conflict = true;
                         if(status == PROGRESS) progress = true;
  
                         status = solu->set(i,j+segment-1,EMPTY); 
-                        //if(status == CONFLICT) conflict = true;
+                        // if(status == CONFLICT) conflict = true;
                         if(status == PROGRESS) progress = true;
  
                         j = j+segment;
                     } 
                 }
-            }
+            }*/
 
 			// ---- PART 2 ----
 			// Rule 2.1
@@ -673,6 +788,121 @@ bool solve_helper(Puzzle p, State st) {
 
 			// Rule 1.3
 			for (int j = 0; j < size; j++) {
+				int start = solv->col_runs[i][j].s;
+				int end = solv->col_runs[i][j].e;
+				int color = p->col_constraints[i][j].color;
+
+				if (start >= 1 && solu->data[start * width + i] == color) {
+					bool length1 = true;
+					for (int k = 0; k < j; k++) {
+						if (solv->col_runs[i][k].s <= start && start <= solv->col_runs[i][k].e && solv->col_runs[i][k].l != 1)
+							length1 = false;
+					}
+
+					if (length1) {
+						int status = solu->set(start - 1, i, EMPTY);
+						if (status == CONFLICT) conflict = true;
+						if (status == PROGRESS) progress = true;
+					}
+				}
+
+				if (end <= height - 2 && solu->data[end * width + i] == color) {
+					bool length1 = true;
+					for (int k = j + 1; k < size; k++) {
+						if (solv->col_runs[i][k].s <= end && end <= solv->col_runs[i][k].e && solv->col_runs[i][k].l != 1)
+							length1 = false;
+					}
+
+					if (length1) {
+						int status = solu->set(end + 1, i, EMPTY);
+						if (status == CONFLICT) conflict = true;
+						if (status == PROGRESS) progress = true;
+					}
+				}
+			}
+
+			// Rule 1.4
+			for (int j = 1; j < height - 1; j++) {
+				if (solu->data[(j - 1) * width + i] > 0 && solu->data[j * width + i] == UNKNOWN && solu->data[(j + 1) * width + i] > 0) {
+					int len = 1;
+					for (int k = j - 1; k >= 0 && solu->data[k * width + i] > 0; k--) { len++; }
+					for (int k = j + 1; k < height && solu->data[k * width + i] > 0; k++) { len++; }
+
+					int maxLen = 0;
+					for (int k = 0; k < size; k++) {
+						if (solv->col_runs[i][k].s <= j - 1 && solv->col_runs[i][k].e >= j + 1 && solv->col_runs[i][k].l > maxLen)
+							maxLen = solv->col_runs[i][k].l;
+					}
+
+					if (len > maxLen) {
+						int status = solu->set(j, i, EMPTY);
+						if (status == CONFLICT) conflict = true;
+						if (status == PROGRESS) progress = true;
+					}
+				}
+			}
+
+			// Rule 1.5
+			for (int j = 1; j < height; j++) {
+				int color = 1;
+
+				if ((solu->data[(j - 1) * width + i] == EMPTY || solu->data[(j - 1) * width + i] == UNKNOWN) && solu->data[j * width + i] > 0) {
+					int minLen = height + 1;
+					for (int k = 0; k < size; k++) {
+						if (solv->col_runs[i][k].s <= j && solv->col_runs[i][k].e >= j && solv->col_runs[i][k].l < minLen)
+							minLen = solv->col_runs[i][k].l;
+					}
+
+					if (minLen <= height) {
+						int empty = j - 1;
+						for (; empty >= j - minLen && empty >= 0 && solu->data[empty * width + i] != EMPTY; empty--) {}
+						if (empty >= j - minLen + 1) {
+							for (int k = j + 1; k <= empty + minLen; k++) {
+								int status = solu->set(k, i, color);
+								if (status == CONFLICT) conflict = true;
+								if (status == PROGRESS) progress = true;
+							}
+						}
+
+						empty = j + 1;
+						for (; empty <= j + minLen && empty < height && solu->data[empty * width + i] != EMPTY; empty++) {}
+						if (empty <= j + minLen - 1) {
+							for (int k = empty - minLen; k <= j - 1; k++) {
+								int status = solu->set(k, i, color);
+								if (status == CONFLICT) conflict = true;
+								if (status == PROGRESS) progress = true;
+							}
+						}
+					}
+
+
+					int len = -1;
+					int start = j;
+					int end = j;
+					for (; start >= 0 && solu->data[start * width + i] > 0; start--) { len++; }
+					start++;
+					for (; end < height && solu->data[end * width + i] > 0; end++) { len++; }
+					end--;
+
+					bool sameLen = true;
+					for (int k = 0; k < size; k++) {
+						if (solv->col_runs[i][k].s <= j && solv->col_runs[i][k].e >= j && solv->col_runs[i][k].l != len)
+							sameLen = false;
+					}
+
+					if (sameLen) {
+						int status = solu->set(start - 1, i, EMPTY);
+						if (status == CONFLICT) conflict = true;
+						if (status == PROGRESS) progress = true;
+						status = solu->set(end + 1, i, EMPTY);
+						if (status == CONFLICT) conflict = true;
+						if (status == PROGRESS) progress = true;
+					}
+				}
+			}
+
+			// Rule 1.3
+			/*for (int j = 0; j < size; j++) {
 				// Start case
 				int start = solv->col_runs[i][j].s;
 				if ((start-1) >= 0 && solu->data[solu->width*start + i] > 0) {
@@ -687,7 +917,7 @@ bool solve_helper(Puzzle p, State st) {
 					}
 					if (len1) {
 						int status = solu->set(start - 1, i, EMPTY);
-    					//if (status == CONFLICT) conflict = true;
+    					if (status == CONFLICT) conflict = true;
 						if (status == PROGRESS) progress = true;
 					}
 				}
@@ -705,7 +935,7 @@ bool solve_helper(Puzzle p, State st) {
                     }
                     if(len1){
                         int status = solu->set(end+1,i,EMPTY);
-    					//if (status == CONFLICT) conflict = true;
+    					if (status == CONFLICT) conflict = true;
 						if (status == PROGRESS) progress = true;
                     }
 	
@@ -745,7 +975,7 @@ bool solve_helper(Puzzle p, State st) {
                         }
                         if(max < totallen){ 
                             int status = solu->set(targetcell,i,EMPTY);
-    				    	//if (status == CONFLICT) conflict = true;
+    				    	if (status == CONFLICT) conflict = true;
 						    if (status == PROGRESS) progress = true;
                         }
                         lower_run = min; 
@@ -785,7 +1015,7 @@ bool solve_helper(Puzzle p, State st) {
                         //Color each cell in between
                         for(int k = j+1; k <= prevEmpty+minlen; k++){
                             int status = solu->set(k,i,1);  
-    	    				//if (status == CONFLICT) conflict = true;
+    	    				if (status == CONFLICT) conflict = true;
 			    			if (status == PROGRESS) progress = true;
 	
                         }
@@ -798,7 +1028,7 @@ bool solve_helper(Puzzle p, State st) {
                     if(afterEmpty != -1){
                          for(int k = afterEmpty-minlen; k <= j-1 ; k++){
                             int status = solu->set(k,i,1); 
-    				    	//if (status == CONFLICT) conflict = true;
+    				    	if (status == CONFLICT) conflict = true;
 						    if (status == PROGRESS) progress = true;
 	
                         }
@@ -825,7 +1055,7 @@ bool solve_helper(Puzzle p, State st) {
                     }
                     if(samesize){
                         int status = solu->set(j-1,i,EMPTY);
-    					//if (status == CONFLICT) conflict = true;
+    					if (status == CONFLICT) conflict = true;
 						if (status == PROGRESS) progress = true;
 	
                         status = solu->set(j+segment-1,i,EMPTY);
@@ -835,7 +1065,7 @@ bool solve_helper(Puzzle p, State st) {
                         j = j+segment;
                     } 
                 }
-            }
+            }*/
 
 
             // ---- PART 2 ----
@@ -1075,8 +1305,10 @@ bool solve_helper(Puzzle p, State st) {
 	}
 	// }
 
-	if (conflict)
+	if (conflict) {
+		// printf("Conflict found\n");
 		return false;
+	}
 
 	// Do DFS if not solved
 	if (filled(solu)) {

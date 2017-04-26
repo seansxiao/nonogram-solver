@@ -7,6 +7,7 @@
 #define PROGRESS 1
 #define SAME 0
 #define CONFLICT -1
+#define OUTOFBOUNDS -2
 
 
 #include <stdio.h>
@@ -93,6 +94,9 @@ struct solution {
 	}
 
 	int set(int row, int col, int color) {
+		if (row < 0 || row >= height || col < 0 || col >= width)
+			return OUTOFBOUNDS;
+
 		int index = row * width + col;
 		if (data[index] == UNKNOWN) {
 			data[index] = color;
