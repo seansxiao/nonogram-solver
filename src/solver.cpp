@@ -163,7 +163,7 @@ bool solve(Puzzle p, Solution solu) {
 	State st = create_state(p, solu, solv);
 	st->row = 0;
 	st->run_index = -1;
-	solve_helper(p, st);
+	bool solved = solve_helper(p, st);
 
 	for (int i = 0; i < solu->width * solu->height; i++) {
 		solu->data[i] = st->solu->data[i];
@@ -171,7 +171,14 @@ bool solve(Puzzle p, Solution solu) {
 
 	free_state(st);
 
-	return false;
+	printf("Solution:\n");
+	solu->print_solution();
+	if (solved)
+		printf("Solved!\n");
+	else
+		printf("UNABLE TO SOLVE\n");
+
+	return solved;
 }
 
 bool solve_helper(Puzzle p, State st) {
@@ -185,7 +192,7 @@ bool solve_helper(Puzzle p, State st) {
 	int iterations = 0;
 	while (progress) {
 		progress = false;
-		printf("Iteration %d\n", iterations);
+		// printf("Iteration %d\n", iterations);
 
 		// ======================
 		// ======== ROWS ========
@@ -990,36 +997,35 @@ bool solve_helper(Puzzle p, State st) {
 			}
 		}
 
-		solu->print_solution();
+		// solu->print_solution();
 
 		iterations++;
 	}
 
-	printf("Solution:\n");
-	solu->print_solution();
-
 	// Do DFS if not solved
-	if (true || solved(solu)) {
+	if (solved(solu)) {
 		return true;
 	}
 	else {
-		printf("Starting DFS\n");
+		// printf("========================Starting DFS========================\n");
 		State newSt = create_state(p, solu, solv);
-		newSt->row = st->row;
-		newSt->run_index = st->run_index + 1;
-		if (newSt->run_index > p->row_sizes[newSt->row]) {
-			newSt->row = st->row + 1;
-			newSt->run_index = 0;
+		int row = st->row;
+		int runIndex = st->run_index + 1;
+		if (runIndex >= p->row_sizes[row]) {
+			row++;
+			runIndex = 0;
 		}
-		int row = newSt->row;
-		int runIndex = newSt->run_index;
 		if (row >= height)
-			return true;
-		printf("row: %d, run: %d\n", newSt->row, newSt->run_index);
-		int runStart = newSt->solv->row_runs[row][runIndex].s;
-		int runRight = newSt->solv->row_runs[row][runIndex].e - newSt->solv->row_runs[row][runIndex].l + 1;
+			return false;
+		// printf("row: %d, run: %d\n", row, runIndex);
+		int runStart = st->solv->row_runs[row][runIndex].s;
+		int runRight = st->solv->row_runs[row][runIndex].e - st->solv->row_runs[row][runIndex].l + 1;
 		for (; runStart <= runRight; runStart++) {
-			int runEnd = runStart + newSt->solv->row_runs[row][runIndex].l - 1;
+			State newSt = create_state(p, solu, solv);
+			newSt->row = row;
+			newSt->run_index = runIndex;
+
+			int runEnd = runStart + st->solv->row_runs[row][runIndex].l - 1;
 
 			// Set run at particular location
 			newSt->solv->row_runs[row][runIndex].s = runStart;
@@ -1034,8 +1040,13 @@ bool solve_helper(Puzzle p, State st) {
 			if (runEnd < width - 1)
 				newSt->solu->set(row, runEnd + 1, EMPTY);
 
-			if (solve_helper(p, newSt))
+			if (solve_helper(p, newSt)) {
+				*st = *newSt;
 				return true;
+			}
+			else {
+				free_state(newSt);
+			}
 		}
 	}
 

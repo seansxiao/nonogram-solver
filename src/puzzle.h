@@ -101,6 +101,7 @@ struct solution {
 			return SAME;
 		}
 		else {
+			// printf("********************CONFLICT********************\n");
 			return CONFLICT;
 		}
 	}
