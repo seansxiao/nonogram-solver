@@ -4,6 +4,10 @@
 #define EMPTY 0
 #define UNKNOWN -1
 
+#define PROGRESS 1
+#define SAME 0
+#define CONFLICT -1
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -87,14 +91,17 @@ struct solution {
 		return;
 	}
 
-	bool set(int row, int col, int color) {
+	int set(int row, int col, int color) {
 		int index = row * width + col;
 		if (data[index] == UNKNOWN) {
 			data[index] = color;
-			return true;
+			return PROGRESS;
+		}
+		else if (data[index] == color) {
+			return SAME;
 		}
 		else {
-			return false;
+			return CONFLICT;
 		}
 	}
 
