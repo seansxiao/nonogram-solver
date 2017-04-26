@@ -295,7 +295,7 @@ bool solve_helper(Puzzle p, State st) {
 			}
 
 			// Rule 1.5
-			int prevEmpty = -1;
+			/*int prevEmpty = -1;
 			for (int j = 1; j < p -> width; j++) {
 				int index = i*solu->width + j;
 				int lower_run = 0;
@@ -332,7 +332,7 @@ bool solve_helper(Puzzle p, State st) {
 						}
 					}
 				}
-			}
+			}*/
             /*//Rule 1.6
             for(int j = 1; j < p->width; j++){
                 int index = i*p->width + j; 
@@ -525,11 +525,39 @@ bool solve_helper(Puzzle p, State st) {
 				int black = start;
 				for (; black < end && solu->data[i * solu->width + black] != color; black++) {}
 				int empty = black;
-				for (; empty < end && solu->data[i * solu->width + empty] != EMPTY; empty++) {}
+				for (; empty <= end && solu->data[i * solu->width + empty] != EMPTY; empty++) {}
 				if ((j == 0 || start > solv->row_runs[i][j-1].e) &&
 					empty < end && empty > black) {
 					solv->row_runs[i][j].e = empty - 1;
 					progress = true;
+				}
+			}
+
+			// Rule 3.3-3
+			for (int j = 0; j < size; j++) {
+				int start = solv->row_runs[i][j].s;
+				int end = solv->row_runs[i][j].e;
+				int color = p->row_constraints[i][j].color;
+				int len = solv->row_runs[i][j].l;
+
+				if (j == 0 || start > solv->row_runs[i][j-1].e) {
+					int black = start;
+					for (; black < end && solu->data[i * solu->width + black] != color; black++) {}
+
+					int index = black;
+					for (; index <= end && solu->data[i * solu->width + index] == color; index++) {}
+					
+					index++;
+					for (int k = index; k <= end; k++) {
+						if (solu->data[i * solu->width + k] != color || k == end) {
+							if ((k - 1) - black + 1 > len) {
+								solv->row_runs[i][j].e = index - 2;
+								progress = true;
+								k = end + 1;
+							}
+							index = k + 1;
+						}
+					}
 				}
 			}
 		}
@@ -642,7 +670,7 @@ bool solve_helper(Puzzle p, State st) {
 			}
 
 			// Rule 1.5 
-			int prevEmpty = -1;
+			/*int prevEmpty = -1;
 			for (int j = 1; j < p -> height; j++) {
 				int prevIndex = (j-1)*solu->width + i;
 				int index = j*solu->width + i;
@@ -681,7 +709,7 @@ bool solve_helper(Puzzle p, State st) {
 						}
 					}
 				}
-			}
+			}*/
 
 			// ---- PART 2 ----
 			// Rule 2.1
@@ -849,11 +877,39 @@ bool solve_helper(Puzzle p, State st) {
 				int black = start;
 				for (; black < end && solu->data[black * solu->width + i] != color; black++) {}
 				int empty = black;
-				for (; empty < end && solu->data[empty * solu->width + i] != EMPTY; empty++) {}
+				for (; empty <= end && solu->data[empty * solu->width + i] != EMPTY; empty++) {}
 				if ((j == 0 || start > solv->col_runs[i][j-1].e) &&
 					empty < end && empty > black) {
 					solv->col_runs[i][j].e = empty - 1;
 					progress = true;
+				}
+			}
+
+			// Rule 3.3-3
+			for (int j = 0; j < size; j++) {
+				int start = solv->col_runs[i][j].s;
+				int end = solv->col_runs[i][j].e;
+				int color = p->col_constraints[i][j].color;
+				int len = solv->col_runs[i][j].l;
+
+				if (j == 0 || start > solv->col_runs[i][j-1].e) {
+					int black = start;
+					for (; black < end && solu->data[black * solu->width + i] != color; black++) {}
+
+					int index = black;
+					for (; index <= end && solu->data[index * solu->width + i] == color; index++) {}
+					
+					index++;
+					for (int k = index; k <= end; k++) {
+						if (solu->data[k * solu->width + i] != color || k == end) {
+							if ((k - 1) - black + 1 > len) {
+								solv->col_runs[i][j].e = index - 2;
+								progress = true;
+								k = end + 1;
+							}
+							index = k + 1;
+						}
+					}
 				}
 			}
 		}
