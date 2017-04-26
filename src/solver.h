@@ -5,6 +5,32 @@ struct run {
 	int s;
 	int e;
 	int l;
+
+	int start(int sNew) {
+		if (e - sNew + 1 < l) {
+			return CONFLICT;
+		}
+		else if (sNew > s) {
+			s = sNew;
+			return PROGRESS;
+		}
+		else {
+			return SAME;
+		}
+	}
+
+	int end(int eNew) {
+		if (eNew - s + 1 < l) {
+			return CONFLICT;
+		}
+		else if (eNew < e) {
+			e = eNew;
+			return PROGRESS;
+		}
+		else {
+			return SAME;
+		}
+	}
 };
 
 // struct cell {
@@ -48,4 +74,4 @@ void free_state(State st);
 
 bool solve(Puzzle p, Solution s);
 bool solve_helper(Puzzle p, State st);
-bool solved(Solution s);
+bool filled(Solution s);

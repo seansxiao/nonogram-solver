@@ -396,16 +396,20 @@ bool solve_helper(Puzzle p, State st) {
 				int currentStart = solv->row_runs[i][j].s;
 				int prevStart = solv->row_runs[i][j-1].s;
 				if (currentStart <= prevStart) {
-					solv->row_runs[i][j].s = prevStart + solv->row_runs[i][j-1].l + 1;
-					progress = true;
+					int status = solv->row_runs[i][j].start(prevStart + solv->row_runs[i][j-1].l + 1);
+					if (status == CONFLICT)
+						return false;
+					if (status == PROGRESS) progress = true;
 				}
 			}
 			for (int j = 0; j < size - 1; j++) {
 				int currentEnd = solv->row_runs[i][j].e;
 				int nextEnd = solv->row_runs[i][j+1].e;
 				if (currentEnd >= nextEnd) {
-					solv->row_runs[i][j].e = nextEnd - solv->row_runs[i][j+1].l - 1;
-					progress = true;
+					int status = solv->row_runs[i][j].end(nextEnd - solv->row_runs[i][j+1].l - 1);
+					if (status == CONFLICT)
+						return false;
+					if (status == PROGRESS) progress = true;
 				}
 			}
 
@@ -416,15 +420,19 @@ bool solve_helper(Puzzle p, State st) {
 				if (currentStart > 0) {
 					int prevCell = solu->data[i * solu->width + currentStart - 1];
 					if (prevCell != EMPTY && prevCell != UNKNOWN) {
-						solv->row_runs[i][j].s++;
-						progress = true;
+						int status = solv->row_runs[i][j].start(solv->row_runs[i][j].s + 1);
+						if (status == CONFLICT)
+							return false;
+						if (status == PROGRESS) progress = true;
 					}
 				}
 				if (currentEnd < solu->width - 1) {
 					int nextCell = solu->data[i * solu->width + currentEnd + 1];
 					if (nextCell != EMPTY && nextCell != UNKNOWN) {
-						solv->row_runs[i][j].e--;
-						progress = true;
+						int status = solv->row_runs[i][j].end(solv->row_runs[i][j].e - 1);
+						if (status == CONFLICT)
+							return false;
+						if (status == PROGRESS) progress = true;
 					}
 				}
 			}
@@ -444,12 +452,16 @@ bool solve_helper(Puzzle p, State st) {
 					else {
 						if (segEnd - segStart + 1 > len) {
 							if (segEnd <= solv->row_runs[i][j-1].e && segStart < solv->row_runs[i][j+1].s) {
-								solv->row_runs[i][j].s = segEnd + 2;
-								progress = true;
+								int status = solv->row_runs[i][j].start(segEnd + 2);
+								if (status == CONFLICT)
+									return false;
+								if (status == PROGRESS) progress = true;
 							}
 							if (segStart >= solv->row_runs[i][j+1].s && segEnd > solv->row_runs[i][j-1].e) {
-								solv->row_runs[i][j].e = segStart - 2;
-								progress = true;
+								int status = solv->row_runs[i][j].end(segStart - 2);
+								if (status == CONFLICT)
+									return false;
+								if (status == PROGRESS) progress = true;
 							}
 						}
 						segStart = k + 1;
@@ -478,12 +490,16 @@ bool solve_helper(Puzzle p, State st) {
 					}
 
 					if (startCell - u > solv->row_runs[i][j].s) {
-						solv->row_runs[i][j].s = startCell - u;
-						progress = true;
+						int status = solv->row_runs[i][j].start(startCell - u);
+						if (status == CONFLICT)
+							return false;
+						if (status == PROGRESS) progress = true;
 					}
 					if (endCell + u < solv->row_runs[i][j].e) {
-						solv->row_runs[i][j].e = endCell + u;
-						progress = true;
+						int status = solv->row_runs[i][j].end(endCell + u);
+						if (status == CONFLICT)
+							return false;
+						if (status == PROGRESS) progress = true;
 					}
 				}
 			}
@@ -552,12 +568,16 @@ bool solve_helper(Puzzle p, State st) {
 					}
 					solv->row_runs[i][j].e = start + len - 1;
 					if (j < size - 1 && solv->row_runs[i][j+1].s <= solv->row_runs[i][j].e) {
-						solv->row_runs[i][j+1].s = solv->row_runs[i][j].e + 2;
-						progress = true;
+						int status = solv->row_runs[i][j+1].start(solv->row_runs[i][j].e + 2);
+						if (status == CONFLICT)
+							return false;
+						if (status == PROGRESS) progress = true;
 					}
 					if (j > 0 && solv->row_runs[i][j-1].e >= start - 1){
-						solv->row_runs[i][j-1].e = start - 2;
-						progress = true;
+						int status = solv->row_runs[i][j-1].end(start - 2);
+						if (status == CONFLICT)
+							return false;
+						if (status == PROGRESS) progress = true;
 					}
 				}
 			}
@@ -573,8 +593,10 @@ bool solve_helper(Puzzle p, State st) {
 				for (; empty <= end && solu->data[i * solu->width + empty] != EMPTY; empty++) {}
 				if ((j == 0 || start > solv->row_runs[i][j-1].e) &&
 					empty < end && empty > black) {
-					solv->row_runs[i][j].e = empty - 1;
-					progress = true;
+					int status = solv->row_runs[i][j].end(empty - 1);
+					if (status == CONFLICT)
+						return false;
+					if (status == PROGRESS) progress = true;
 				}
 			}
 
@@ -596,8 +618,10 @@ bool solve_helper(Puzzle p, State st) {
 					for (int k = index; k <= end; k++) {
 						if (solu->data[i * solu->width + k] != color || k == end) {
 							if ((k - 1) - black + 1 > len) {
-								solv->row_runs[i][j].e = index - 2;
-								progress = true;
+								int status = solv->row_runs[i][j].end(index - 2);
+								if (status == CONFLICT)
+									return false;
+								if (status == PROGRESS) progress = true;
 								k = end + 1;
 							}
 							index = k + 1;
@@ -786,16 +810,20 @@ bool solve_helper(Puzzle p, State st) {
 				int currentStart = solv->col_runs[i][j].s;
 				int prevStart = solv->col_runs[i][j-1].s;
 				if (currentStart <= prevStart) {
-					solv->col_runs[i][j].s = prevStart + solv->col_runs[i][j-1].l + 1;
-					progress = true;
+					int status = solv->col_runs[i][j].start(prevStart + solv->col_runs[i][j-1].l + 1);
+					if (status == CONFLICT)
+						return false;
+					if (status == PROGRESS) progress = true;
 				}
 			}
 			for (int j = 0; j < size - 1; j++) {
 				int currentEnd = solv->col_runs[i][j].e;
 				int nextEnd = solv->col_runs[i][j+1].e;
 				if (currentEnd >= nextEnd) {
-					solv->col_runs[i][j].e = nextEnd - solv->col_runs[i][j+1].l - 1;
-					progress = true;
+					int status = solv->col_runs[i][j].end(nextEnd - solv->col_runs[i][j+1].l - 1);
+					if (status == CONFLICT)
+						return false;
+					if (status == PROGRESS) progress = true;
 				}
 			}
 
@@ -806,15 +834,19 @@ bool solve_helper(Puzzle p, State st) {
 				if (currentStart > 0) {
 					int prevCell = solu->data[(currentStart - 1) * solu->width + i];
 					if (prevCell != EMPTY && prevCell != UNKNOWN) {
-						solv->col_runs[i][j].s++;
-						progress = true;
+						int status = solv->col_runs[i][j].start(solv->col_runs[i][j].s + 1);
+						if (status == CONFLICT)
+							return false;
+						if (status == PROGRESS) progress = true;
 					}
 				}
 				if (currentEnd < solu->height - 1) {
 					int nextCell = solu->data[(currentEnd + 1) * solu->width + i];
 					if (nextCell != EMPTY && nextCell != UNKNOWN) {
-						solv->col_runs[i][j].e--;
-						progress = true;
+						int status = solv->col_runs[i][j].end(solv->col_runs[i][j].e - 1);
+						if (status == CONFLICT)
+							return false;
+						if (status == PROGRESS) progress = true;
 					}
 				}
 			}
@@ -834,12 +866,16 @@ bool solve_helper(Puzzle p, State st) {
 					else {
 						if (segEnd - segStart + 1 > len) {
 							if (segEnd <= solv->col_runs[i][j-1].e && segStart < solv->col_runs[i][j+1].s) {
-								solv->col_runs[i][j].s = segEnd + 2;
-								progress = true;
+								int status = solv->col_runs[i][j].start(segEnd + 2);
+								if (status == CONFLICT)
+									return false;
+								if (status == PROGRESS) progress = true;
 							}
 							if (segStart >= solv->col_runs[i][j+1].s && segEnd > solv->col_runs[i][j-1].e) {
-								solv->col_runs[i][j].e = segStart - 2;
-								progress = true;
+								int status = solv->col_runs[i][j].end(segStart - 2);
+								if (status == CONFLICT)
+									return false;
+								if (status == PROGRESS) progress = true;
 							}
 						}
 						segStart = k + 1;
@@ -868,12 +904,16 @@ bool solve_helper(Puzzle p, State st) {
 					}
 
 					if (startCell - u > solv->col_runs[i][j].s) {
-						solv->col_runs[i][j].s = startCell - u;
-						progress = true;
+						int status = solv->col_runs[i][j].start(startCell - u);
+						if (status == CONFLICT)
+							return false;
+						if (status == PROGRESS) progress = true;
 					}
 					if (endCell + u < solv->col_runs[i][j].e) {
-						solv->col_runs[i][j].e = endCell + u;
-						progress = true;
+						int status = solv->col_runs[i][j].end(endCell + u);
+						if (status == CONFLICT)
+							return false;
+						if (status == PROGRESS) progress = true;
 					}
 				}
 			}
@@ -942,12 +982,16 @@ bool solve_helper(Puzzle p, State st) {
 					}
 					solv->col_runs[i][j].e = start + len - 1;
 					if (j < size - 1 && solv->col_runs[i][j+1].s <= solv->col_runs[i][j].e) {
-						solv->col_runs[i][j+1].s = solv->col_runs[i][j].e + 2;
-						progress = true;
+						int status = solv->col_runs[i][j+1].start(solv->col_runs[i][j].e + 2);
+						if (status == CONFLICT)
+							return false;
+						if (status == PROGRESS) progress = true;
 					}
 					if (j > 0 && solv->col_runs[i][j-1].e >= start - 1){
-						solv->col_runs[i][j-1].e = start - 2;
-						progress = true;
+						int status = solv->col_runs[i][j-1].end(start - 2);
+						if (status == CONFLICT)
+							return false;
+						if (status == PROGRESS) progress = true;
 					}
 				}
 			}
@@ -963,8 +1007,10 @@ bool solve_helper(Puzzle p, State st) {
 				for (; empty <= end && solu->data[empty * solu->width + i] != EMPTY; empty++) {}
 				if ((j == 0 || start > solv->col_runs[i][j-1].e) &&
 					empty < end && empty > black) {
-					solv->col_runs[i][j].e = empty - 1;
-					progress = true;
+					int status = solv->col_runs[i][j].end(empty - 1);
+					if (status == CONFLICT)
+						return false;
+					if (status == PROGRESS) progress = true;
 				}
 			}
 
@@ -986,8 +1032,10 @@ bool solve_helper(Puzzle p, State st) {
 					for (int k = index; k <= end; k++) {
 						if (solu->data[k * solu->width + i] != color || k == end) {
 							if ((k - 1) - black + 1 > len) {
-								solv->col_runs[i][j].e = index - 2;
-								progress = true;
+								int status = solv->col_runs[i][j].end(index - 2);
+								if (status == CONFLICT)
+									return false;
+								if (status == PROGRESS) progress = true;
 								k = end + 1;
 							}
 							index = k + 1;
@@ -1003,7 +1051,7 @@ bool solve_helper(Puzzle p, State st) {
 	}
 
 	// Do DFS if not solved
-	if (solved(solu)) {
+	if (filled(solu)) {
 		return true;
 	}
 	else {
@@ -1031,16 +1079,22 @@ bool solve_helper(Puzzle p, State st) {
 			newSt->solv->row_runs[row][runIndex].s = runStart;
 			newSt->solv->row_runs[row][runIndex].e = runEnd;
 
+			bool conflict = false;
 			// Update all cells in the run region
 			for (int i = runStart; i <= runEnd; i++) {
-				newSt->solu->set(row, i, p->row_constraints[row][runIndex].color);
+				if (newSt->solu->set(row, i, p->row_constraints[row][runIndex].color) == CONFLICT)
+					conflict = true;
 			}
-			if (runStart > 0)
-				newSt->solu->set(row, runStart - 1, EMPTY);
-			if (runEnd < width - 1)
-				newSt->solu->set(row, runEnd + 1, EMPTY);
+			if (runStart > 0) {
+				if (newSt->solu->set(row, runStart - 1, EMPTY) == CONFLICT)
+					conflict = true;
+			}
+			if (runEnd < width - 1) {
+				if (newSt->solu->set(row, runEnd + 1, EMPTY) == CONFLICT)
+					conflict = true;
+			}
 
-			if (solve_helper(p, newSt)) {
+			if (!conflict && solve_helper(p, newSt)) {
 				*st = *newSt;
 				return true;
 			}
@@ -1053,7 +1107,7 @@ bool solve_helper(Puzzle p, State st) {
 	return false;
 }
 
-bool solved(Solution solu) {
+bool filled(Solution solu) {
 	int size = solu->width * solu->height;
 	for (int i = 0; i < size; i++) {
 		if (solu->data[i] == UNKNOWN)
