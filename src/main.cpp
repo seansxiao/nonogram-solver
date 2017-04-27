@@ -95,6 +95,41 @@ int main(int argc, char *argv[]) {
 	else
 		printf("CORRECTNESS FAILED\n");
 	printf("TIME: %.4f\n", ref_time);
+    
+    ofstream output; 
+    output.open("output.pbm");
 
+    int scale = 4;
+    int sw = w*scale;
+    int sh = h*scale;
+    int *d = s->data;
+    int scaled[scale * scale * w* h]; 
+    for(int i = 0; i < h; i++){
+        for(int j = 0; j < w; j++){
+            int num = d[i*w+j];
+            int row = i*scale;
+            int col = j*scale;
+            for(int k = 0; k < scale; k++){
+                for(int l = 0; l < scale; l++){
+                    scaled[(row+k)*sw + col + l] = num;
+                }
+            }
+        }
+    }
+    
+    output << "P1\n";
+    output << sw;
+    output << " ";
+    output << sh; 
+    output << "\n"; 
+
+    for(int i = 0; i < sh; i++){
+        for(int j = 0; j < sw; j++){
+            output << scaled[i*sw+j];
+            output << " ";
+        }
+        output << "\n";
+    }
+    output.close();
 	return 0;
 }
