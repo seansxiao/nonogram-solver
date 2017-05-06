@@ -1315,7 +1315,7 @@ bool solve_helper(Puzzle p, State st) {
 		return true;
 	}
 	else {
-		// printf("========================Starting DFS========================\n");
+		printf("========================Starting DFS========================\n");
 		State newSt = create_state(p, solu, solv);
 		int row = st->row;
 		int runIndex = st->run_index + 1;
