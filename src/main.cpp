@@ -60,6 +60,8 @@ int main(int argc, char *argv[]) {
 
         }
     }
+    printf("Height: %d\n", h);
+    printf("Width: %d\n",w);
     myfile.close();
 
 	puzzle p = puzzle(w, h, &*r_sizes.begin(), &*c_sizes.begin(),
