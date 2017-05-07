@@ -200,7 +200,7 @@ bool solve_helper(Puzzle p, State st) {
 		// ======================
 		// ======== ROWS ========
 		// ======================
-		//#pragma omp parallel for
+		#pragma omp parallel for
 		for (int i = 0; i < height; i++) {
 			int size = solv->row_sizes[i];
 
@@ -748,7 +748,7 @@ bool solve_helper(Puzzle p, State st) {
 		// =========================
 		// ======== COLUMNS ========
 		// =========================
-		//#pragma omp parallel for
+		#pragma omp parallel for
 		for (int i = 0; i < width; i++) {
 			int size = solv->col_sizes[i];
 
