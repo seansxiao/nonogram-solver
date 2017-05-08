@@ -198,7 +198,7 @@ bool solve_helper(Puzzle p, State st) {
 
 			// ---- PART 1 ----
 			// Rule 1.1
-			for (int j = 0; j < size; j++) {
+			for(int j = 0; j < size; j++) {
 				int start = solv->row_runs[i][j].s;
 				int end = solv->row_runs[i][j].e;
 				int u = end - start + 1 - solv->row_runs[i][j].l;
