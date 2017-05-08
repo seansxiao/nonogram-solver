@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NUM_THREADS 1
+#define NUM_THREADS 8
 
 Solver initialize_solver(Puzzle p) {
     solver* solv = (struct solver*)(malloc(sizeof(struct solver)));
@@ -208,7 +208,7 @@ bool solve_helper(Puzzle p, State st) {
     bool conflict = false;
     int iterations = 0;
 
-    double start = CycleTimer::currentSeconds() - start;
+    double start = CycleTimer::currentSeconds();
     #pragma omp parallel num_threads(NUM_THREADS)
     {
         int tid = omp_get_thread_num();
@@ -217,9 +217,9 @@ bool solve_helper(Puzzle p, State st) {
             // printf("Iteration %d\n", iterations);
 
             #pragma omp barrier
-            #pragma master
+            #pragma single
             {
-            progress = false;
+                progress = false;
             }
             //#pragma omp barrier
             // ======================
@@ -629,7 +629,8 @@ bool solve_helper(Puzzle p, State st) {
             // =========================
             // ======== COLUMNS ========
             // =========================
-
+            if (!conflict)
+            {
             for (int i = tid; i < width; i += NUM_THREADS) {
             //#pragma omp for  
             /* for (int i = 0; i < width; i++) { */
@@ -1027,6 +1028,7 @@ bool solve_helper(Puzzle p, State st) {
                 }
                 if(lconflict) conflict = true;
                 if(lprogress) progress = true; 
+            }
             }
 
             #pragma omp barrier
