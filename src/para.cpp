@@ -204,7 +204,7 @@ bool solve_helper(Puzzle p, State st) {
     Solver solv = st->solv;
     Solution solu = st->solu;
 
-    int progress = true;
+    bool progress = true;
     bool conflict = false;
     int iterations = 0;
     #pragma omp parallel num_threads(NUM_THREADS)
