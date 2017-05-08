@@ -191,16 +191,17 @@ bool solve_helper(Puzzle p, State st) {
 	int progress = true;
 	bool conflict = false;
 	int iterations = 0;
-	// #pragma omp parallel
-	// {
+	#pragma omp parallel num_threads(16)
+	//{
+    
 	while (progress && !conflict) {
 		progress = false;
-		// printf("Iteration %d\n", iterations);
+		//printf("Iteration %d\n", iterations);
 
 		// ======================
 		// ======== ROWS ========
 		// ======================
-		//#pragma omp parallel for
+		#pragma omp for
 		for (int i = 0; i < height; i++) {
 			int size = solv->row_sizes[i];
 
@@ -587,7 +588,7 @@ bool solve_helper(Puzzle p, State st) {
 		// =========================
 		// ======== COLUMNS ========
 		// =========================
-		//#pragma omp parallel for
+		#pragma omp for
 		for (int i = 0; i < width; i++) {
 			int size = solv->col_sizes[i];
 
@@ -975,8 +976,8 @@ bool solve_helper(Puzzle p, State st) {
 		// solu->print_solution();
 
 		iterations++;
+	   // }
 	}
-	// }
 
 	if (conflict) {
 		// printf("Conflict found\n");

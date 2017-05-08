@@ -1,5 +1,5 @@
 #include "solver.h"
-
+#include <omp.h>
 #include "../util/CycleTimer.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -215,18 +215,32 @@ bool solve_helper(Puzzle p, State st) {
 	int progress = true;
 	bool conflict = false;
 	int iterations = 0;
-	// #pragma omp parallel
-	// {
+	#pragma omp parallel //private(progress,conflict,iterations) num_threads(NUM_THREADS)
+    {	
+    //int tid = omp_get_thread_num();
 	while (progress && !conflict) {
+        printf("new loop %d\n",iterations);
+	    //double start = CycleTimer::currentSeconds();
+    
+
 		progress = false;
 		// printf("Iteration %d\n", iterations);
 
 		// ======================
 		// ======== ROWS ========
 		// ======================
-		#pragma omp parallel for num_threads(NUM_THREADS) 
+        //int tid;
+        //double startT,refT;
+
+	   // #pragma omp parallel num_threads(NUM_THREADS)
+       // {
+        printf("starting rows\n"); 
+		#pragma omp for //private(tid,startT,refT) schedule(dynamic,1)
 		for (int i = 0; i < height; i++) {
 			int size = solv->row_sizes[i];
+            //int tid = omp_get_thread_num();
+            //printf("tid: %d\n",tid);
+	        //startT = CycleTimer::currentSeconds();
 
 			// ---- PART 1 ----
 			// Rule 1.1
@@ -606,13 +620,21 @@ bool solve_helper(Puzzle p, State st) {
 					}
 				}
 			}
-		}
+             //double refT = CycleTimer::currentSeconds() - startT;
+             //printf("thread id : %d, time: %.7f\n",tid,refT);
 
+		}
+        #pragma omp barrier 
 		// =========================
 		// ======== COLUMNS ========
 		// =========================
-		#pragma omp parallel for num_threads(NUM_THREADS) 
+        //
+        printf("startin cols\n");
+		#pragma omp for //private(tid,startT,refT) schedule(dynamic,1) 
 		for (int i = 0; i < width; i++) {
+            //tid = omp_get_thread_num();
+	        //double startT = CycleTimer::currentSeconds();
+
             int local_col[height]; //get local copy
             for(int j = 0; j < height; j++){
                 local_col[j] = solu->data[j*width + i];
@@ -998,23 +1020,32 @@ bool solve_helper(Puzzle p, State st) {
 					}
 				}
 			}
-
             //Write to global memory
             for(int j = 0; j < height; j++){
                 solu->set(j,i,local_col[j]);  
             }
-		}
+             //double refT = CycleTimer::currentSeconds() - startT;
+             //printf("thread id : %d, time: %.7f\n",tid,refT);
+
+	    }
+        #pragma omp barrier 
+        printf("finished col \n"); 
 		// =========================
 		// ====== END COLUMNS ======
 		// =========================
 
+         /* double ref_time = CycleTimer::currentSeconds() - start; */
+        // printf("one iter: %.7f\n", ref_time);
 
 		// solu->print_solution();
-
+        
 		iterations++;
+        printf("iterations++\n"); 
+        //return true; 
+        //if(iterations > 20) return true;
+	    }
 	}
-	// }
-
+    printf("got out of loop!!!!!\n");
 	if (conflict) {
 		// printf("Conflict found\n");
 		return false;
