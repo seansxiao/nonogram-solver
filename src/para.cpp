@@ -177,13 +177,6 @@ bool solve(Puzzle p, Solution solu) {
 
 	free_state(st);
 
-	printf("Solution:\n");
-	solu->print_solution();
-	if (solved)
-		printf("Solved!\n");
-	else
-		printf("UNABLE TO SOLVE\n");
-
 	return solved;
 }
 

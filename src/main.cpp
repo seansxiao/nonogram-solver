@@ -92,6 +92,10 @@ int main(int argc, char *argv[]) {
 	double ref_time = CycleTimer::currentSeconds() - start;
 
 	bool correct = check_solution(&p, s);
+
+    printf("Solution:\n");
+    s->print_solution();
+
 	if (correct)
 		printf("Correctness passed!\n");
 	else
