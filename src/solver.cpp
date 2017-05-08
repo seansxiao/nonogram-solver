@@ -22,14 +22,6 @@ Solver initialize_solver(Puzzle p) {
 		solv->col_runs[i] = (struct run*)(malloc(sizeof(struct run) * solv->col_sizes[i]));
 	}
 
-	// solv->cells = (struct cell**)(malloc(sizeof(struct cell*) * solv->height));
-	// for (int i = 0; i < p->height; i++) {
-	// 	solv->cells[i] = (struct cell*)(malloc(sizeof(struct cell) * solv->width));
-	// 	for (int j = 0; j < p->width; j++) {
-	// 		solv->cells[i][j].runs = (struct run**)(malloc(sizeof(struct run*) * (solv->row_sizes[i] + solv->col_sizes[j])));
-	// 	}
-	// }
-
 	return solv;
 }
 
@@ -104,6 +96,7 @@ void free_solver(Solver solv) {
 	free(solv->row_sizes);
 	free(solv->col_sizes);
 	free(solv);
+
 	return;
 }
 
@@ -150,6 +143,7 @@ void free_state(State st) {
 	free(st->solu->data);
 	free(st->solu);
 	free(st);
+	
 	return;
 }
 
@@ -191,8 +185,6 @@ bool solve_helper(Puzzle p, State st) {
 	int progress = true;
 	bool conflict = false;
 	int iterations = 0;
-	#pragma omp parallel num_threads(16)
-	//{
     
 	while (progress && !conflict) {
 		progress = false;
@@ -201,7 +193,6 @@ bool solve_helper(Puzzle p, State st) {
 		// ======================
 		// ======== ROWS ========
 		// ======================
-		#pragma omp for
 		for (int i = 0; i < height; i++) {
 			int size = solv->row_sizes[i];
 
@@ -588,7 +579,6 @@ bool solve_helper(Puzzle p, State st) {
 		// =========================
 		// ======== COLUMNS ========
 		// =========================
-		#pragma omp for
 		for (int i = 0; i < width; i++) {
 			int size = solv->col_sizes[i];
 
@@ -976,7 +966,6 @@ bool solve_helper(Puzzle p, State st) {
 		// solu->print_solution();
 
 		iterations++;
-	   // }
 	}
 
 	if (conflict) {
