@@ -232,9 +232,6 @@ bool solve_helper(Puzzle p, State st) {
 			// ======================
 			for (int i = tid; i < height; i += NUM_THREADS) {
 				int size = solv->row_sizes[i];
-	            //int tid = omp_get_thread_num();
-	            //printf("tid: %d\n",tid);
-		        //startT = CycleTimer::currentSeconds();
 
 				// ---- PART 1 ----
 				// Rule 1.1
@@ -614,9 +611,6 @@ bool solve_helper(Puzzle p, State st) {
 						}
 					}
 				}
-	             //double refT = CycleTimer::currentSeconds() - startT;
-	             //printf("thread id : %d, time: %.7f\n",tid,refT);
-
 			}
 
 	        #pragma omp barrier
@@ -625,9 +619,6 @@ bool solve_helper(Puzzle p, State st) {
 			// ======== COLUMNS ========
 			// =========================
 			for (int i = tid; i < width; i += NUM_THREADS) {
-	            //tid = omp_get_thread_num();
-		        //double startT = CycleTimer::currentSeconds();
-
 	            int local_col[height]; //get local copy
 	            for(int j = 0; j < height; j++){
 	                local_col[j] = solu->data[j*width + i];
@@ -1013,13 +1004,11 @@ bool solve_helper(Puzzle p, State st) {
 						}
 					}
 				}
-	            //Write to global memory
+
+	            // Write to global memory
 	            for(int j = 0; j < height; j++){
 	                solu->set(j,i,local_col[j]);  
 	            }
-	             //double refT = CycleTimer::currentSeconds() - startT;
-	             //printf("thread id : %d, time: %.7f\n",tid,refT);
-
 		    }
 
 	        #pragma omp barrier
