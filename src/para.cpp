@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NUM_THREADS 16
+#define NUM_THREADS 1
 
 Solver initialize_solver(Puzzle p) {
     solver* solv = (struct solver*)(malloc(sizeof(struct solver)));
@@ -105,6 +105,7 @@ void free_solver(Solver solv) {
 }
 
 int global_height; //declare here cus im fucking lazy 
+double pragmaT; 
 State create_state(Puzzle p, Solution solu, Solver solv) {
     int width = p->width;
     int height = p->height;
@@ -117,7 +118,7 @@ State create_state(Puzzle p, Solution solu, Solver solv) {
     global_height = height; 
     solvNew->row_sizes = solv->row_sizes;
     solvNew->col_sizes = solv->col_sizes;
-
+    
     for (int i = 0; i < height; i++) {
         int size = solv->row_sizes[i];
         for (int j = 0; j < size; j++) {
@@ -170,7 +171,7 @@ bool solve(Puzzle p, Solution solu) {
     printf("SETUP TIME: %.4f\n", ref_time);
 
     bool solved = solve_helper(p, st);
-
+    printf("TOTAL PRAGMA TIME: %.7f\n", pragmaT); 
     for (int i = 0; i < solu->width * solu->height; i++) {
         solu->data[i] = st->solu->data[i];
     }
@@ -196,7 +197,6 @@ int local_set(int data[], int row, int color) {
             return CONFLICT;
         }
 }
-
 bool solve_helper(Puzzle p, State st) {
     int width = p->width;
     int height = p->height;
@@ -207,6 +207,8 @@ bool solve_helper(Puzzle p, State st) {
     bool progress = true;
     bool conflict = false;
     int iterations = 0;
+
+    double start = CycleTimer::currentSeconds() - start;
     #pragma omp parallel num_threads(NUM_THREADS)
     {
         int tid = omp_get_thread_num();
@@ -215,16 +217,17 @@ bool solve_helper(Puzzle p, State st) {
             // printf("Iteration %d\n", iterations);
 
             #pragma omp barrier
-
+            #pragma master
+            {
             progress = false;
-            
+            }
             //#pragma omp barrier
             // ======================
             // ======== ROWS ========
             // ======================
             for (int i = tid; i < height; i += NUM_THREADS) {
-            //#pragma omp for 
-            //for (int i = 0; i < height; i++){
+            /* #pragma omp for */  
+            /* for (int i = 0; i < height; i++){ */
                 int size = solv->row_sizes[i];
                 int local[width]; //get local copy
                 bool lconflict = false;
@@ -628,8 +631,8 @@ bool solve_helper(Puzzle p, State st) {
             // =========================
 
             for (int i = tid; i < width; i += NUM_THREADS) {
-            //#pragma omp for
-            //for (int i = 0; i < width; i++) {
+            //#pragma omp for  
+            /* for (int i = 0; i < width; i++) { */
                 int local_col[height]; //get local copy
                 bool lconflict = false;
                 bool lprogress = false; 
@@ -1036,6 +1039,9 @@ bool solve_helper(Puzzle p, State st) {
             // }
         }
     }
+
+    double ref = CycleTimer::currentSeconds() - start;
+    pragmaT += ref;  
 
     if (conflict) {
         // printf("Conflict found\n");
