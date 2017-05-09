@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NUM_THREADS 2
+#define NUM_THREADS 8
 
 Solver initialize_solver(Puzzle p) {
     solver* solv = (struct solver*)(malloc(sizeof(struct solver)));
@@ -19,11 +19,13 @@ Solver initialize_solver(Puzzle p) {
     for (int i = 0; i < p->height; i++) {
         solv->row_runs[i] = (struct run*)(malloc(sizeof(struct run) * solv->row_sizes[i]));
     }
+    solv->solved_rows = (bool*)(calloc(solv->height, sizeof(bool)));
 
     solv->col_runs = (struct run**)(malloc(sizeof(struct run*) * solv->width));
     for (int i = 0; i < p->width; i++) {
         solv->col_runs[i] = (struct run*)(malloc(sizeof(struct run) * solv->col_sizes[i]));
     }
+    solv->solved_cols = (bool*)(calloc(solv->width, sizeof(bool)));
 
     return solv;
 }
@@ -197,6 +199,79 @@ int local_set(int data[], int row, int color) {
             return CONFLICT;
         }
 }
+
+bool row_solved(int row, Solution s, Puzzle p, Solver solv) {
+    if (solv->solved_rows[row]) return true;
+
+    int col = 0;
+    int numConstraints = p->row_sizes[row];
+    for (int i = 0; i < numConstraints; i++) {
+        
+        // Ignore leading empty spaces
+        while (col < s->width && s->data[row * s->width + col] == EMPTY) {
+            col++;
+        }
+
+        int color = p->row_constraints[row][i].color;
+        int num = p->row_constraints[row][i].num;
+        for (int j = 0; j < num; j++) {
+            // Out of bounds
+            if (col >= s->width)
+                return false;
+            if (s->data[row * s->width + col] != color)
+                return false;
+            col++;
+        }
+    }
+
+    // Check trailing empty spaces
+    while (col < s->width) {
+        if (s->data[row * s->width + col] != 0)
+            return false;
+        col++;
+    }
+
+    solv->solved_rows[row] = true;
+
+    return true;
+}
+
+bool col_solved(int col, Solution s, Puzzle p, Solver solv) {
+    if (solv->solved_cols[col]) return true;
+
+    int row = 0;
+    int numConstraints = p->col_sizes[col];
+    for (int i = 0; i < numConstraints; i++) {
+        
+        // Ignore leading empty spaces
+        while (row < s->height && s->data[row * s->width + col] == EMPTY) {
+            row++;
+        }
+
+        int color = p->col_constraints[col][i].color;
+        int num = p->col_constraints[col][i].num;
+        for (int j = 0; j < num; j++) {
+            // Out of bounds
+            if (row >= s->height)
+                return false;
+            if (s->data[row * s->width + col] != color)
+                return false;
+            row++;
+        }
+    }
+
+    // Check trailing empty spaces
+    while (row < s->height) {
+        if (s->data[row * s->width + col] != 0)
+            return false;
+        row++;
+    }
+
+    solv->solved_cols[col] = true;
+
+    return true;
+}
+
 bool solve_helper(Puzzle p, State st) {
     int width = p->width;
     int height = p->height;
@@ -226,6 +301,7 @@ bool solve_helper(Puzzle p, State st) {
             // ======== ROWS ========
             // ======================
             for (int i = tid; i < height; i += NUM_THREADS) {
+                if (!row_solved(i, solu, p, solv)) {
             /* #pragma omp for */  
             /* for (int i = 0; i < height; i++){ */
                 int size = solv->row_sizes[i];
@@ -605,7 +681,7 @@ bool solve_helper(Puzzle p, State st) {
                 if(lconflict) conflict = true;
                 if(lprogress) progress = true;
 
-
+                }
             }
 
             //#pragma omp barrier
@@ -616,6 +692,7 @@ bool solve_helper(Puzzle p, State st) {
             if (!conflict)
             {
             for (int i = tid; i < width; i += NUM_THREADS) {
+                if (!col_solved(i, solu, p, solv)) {
             //#pragma omp for  
             /* for (int i = 0; i < width; i++) { */
                 int local_col[height]; //get local copy
@@ -990,7 +1067,8 @@ bool solve_helper(Puzzle p, State st) {
                     solu->set(j,i,local_col[j]);  
                 }
                 if(lconflict) conflict = true;
-                if(lprogress) progress = true; 
+                if(lprogress) progress = true;
+                }
             }
             }
             #pragma omp barrier
@@ -1021,6 +1099,10 @@ bool solve_helper(Puzzle p, State st) {
         //State newSt = create_state(p, solu, solv);
         int row = st->row;
         int runIndex = st->run_index + 1;
+        while (row_solved(row, solu, p, solv)) {
+            row++;
+            runIndex = 0;
+        }
         if (runIndex >= p->row_sizes[row]) {
             row++;
             runIndex = 0;

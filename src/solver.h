@@ -44,9 +44,11 @@ struct solver {
 
 	run** row_runs;
 	int* row_sizes;
+	bool* solved_rows;
 
 	run** col_runs;
 	int* col_sizes;
+	bool* solved_cols;
 
 	// cell** cells;
 };
