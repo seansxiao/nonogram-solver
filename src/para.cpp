@@ -313,45 +313,19 @@ bool solve_helper(Puzzle p, State st) {
                 }
 
                 // ---- PART 1 ----
-                // Rule 1.1
+                // Rule 1.1, 1.3 
                 for (int j = 0; j < size; j++) {
                     int start = solv->row_runs[i][j].s;
                     int end = solv->row_runs[i][j].e;
                     int u = end - start + 1 - solv->row_runs[i][j].l;
+                    int color = p->row_constraints[i][j].color;
 
                     for (int k = start + u; k <= end - u; k++) {
                         int status = local_set(local, k, p->row_constraints[i][j].color);
                         if (status == CONFLICT) lconflict = true;
                         if (status == PROGRESS) lprogress = true;
                     }
-                }
-
-                // Rule 1.2
-                int firstStart = solv->row_runs[i][0].s;
-                int lastEnd = solv->row_runs[i][size - 1].e;
-                for (int j = 0; j < width; j++) {
-                    if (j < firstStart || j > lastEnd) {
-                        int status = local_set(local, j, EMPTY);
-                        if (status == CONFLICT) lconflict = true;
-                        if (status == PROGRESS) lprogress = true;
-                    }
-                }
-                for (int j = 0; j < size - 1; j++) {
-                    int currentEnd = solv->row_runs[i][j].e;
-                    int nextStart = solv->row_runs[i][j+1].s;
-                    for (int k = currentEnd + 1; k < nextStart; k++) {
-                        int status = local_set(local, k, EMPTY);
-                        if (status == CONFLICT) lconflict = true;
-                        if (status == PROGRESS) lprogress = true;
-                    }
-                }
-
-                // Rule 1.3
-                for (int j = 0; j < size; j++) {
-                    int start = solv->row_runs[i][j].s;
-                    int end = solv->row_runs[i][j].e;
-                    int color = p->row_constraints[i][j].color;
-
+                    //Rule 1.3
                     if (start >= 1 && local[start] == color) {
                         bool length1 = true;
                         for (int k = 0; k < j; k++) {
@@ -379,87 +353,114 @@ bool solve_helper(Puzzle p, State st) {
                             if (status == PROGRESS) lprogress = true;
                         }
                     }
+ 
                 }
+
+                // Rule 1.2, 1.4. 1.5  
+                int firstStart = solv->row_runs[i][0].s;
+                int lastEnd = solv->row_runs[i][size - 1].e;
+                for (int j = 0; j < width; j++) {
+                    //Rule 1.2
+                    if (j < firstStart || j > lastEnd) {
+                        int status = local_set(local, j, EMPTY);
+                        if (status == CONFLICT) lconflict = true;
+                        if (status == PROGRESS) lprogress = true;
+                    }
+                    for (int j = 0; j < size - 1; j++) {
+                        int currentEnd = solv->row_runs[i][j].e;
+                        int nextStart = solv->row_runs[i][j+1].s;
+                        for (int k = currentEnd + 1; k < nextStart; k++) {
+                            int status = local_set(local, k, EMPTY);
+                            if (status == CONFLICT) lconflict = true;
+                            if (status == PROGRESS) lprogress = true;
+                        }
+                    }
+
+                    //Rule 1.4, 1.5
+                    if(j >= 1){
+                        //Rule 1.4
+                        if( j < width - 1){
+                            if (local[(j - 1)] > 0 && local[j] == UNKNOWN && local[(j + 1)] > 0) {
+                                int len = 1;
+                                for (int k = j - 1; k >= 0 && local[k] > 0; k--) { len++; }
+                                for (int k = j + 1; k < width && local[k] > 0; k++) { len++; }
+
+                                int maxLen = 0;
+                                for (int k = 0; k < size; k++) {
+                                    if (solv->row_runs[i][k].s <= j - 1 && solv->row_runs[i][k].e >= j + 1 && solv->row_runs[i][k].l > maxLen)
+                                        maxLen = solv->row_runs[i][k].l;
+                                }
+
+                                if (len > maxLen) {
+                                    int status = local_set(local, j, EMPTY);
+                                    if (status == CONFLICT) lconflict = true;
+                                    if (status == PROGRESS) lprogress = true;
+                                }
+                            }
+                        }
+                        //Rule 1.5
+                        int color = 1;
+                        if ((local[(j - 1)] == EMPTY || local[(j - 1)] == UNKNOWN) && local[j] > 0) {
+                            int minLen = width + 1;
+                            for (int k = 0; k < size; k++) {
+                                if (solv->row_runs[i][k].s <= j && solv->row_runs[i][k].e >= j && solv->row_runs[i][k].l < minLen)
+                                    minLen = solv->row_runs[i][k].l;
+                            }
+
+                            if (minLen <= width) {
+                                int empty = j - 1;
+                                for (; empty >= j - minLen && empty >= 0 && local[empty] != EMPTY; empty--) {}
+                                if (empty >= j - minLen + 1) {
+                                    for (int k = j + 1; k <= empty + minLen; k++) {
+                                        int status = local_set(local, k, color);
+                                        if (status == CONFLICT) lconflict = true;
+                                        if (status == PROGRESS) lprogress = true;
+                                    }
+                                }
+
+                                empty = j + 1;
+                                for (; empty <= j + minLen && empty < width && local[empty] != EMPTY; empty++) {}
+                                if (empty <= j + minLen - 1) {
+                                    for (int k = empty - minLen; k <= j - 1; k++) {
+                                        int status = local_set(local, k, color);
+                                        if (status == CONFLICT) lconflict = true;
+                                        if (status == PROGRESS) lprogress = true;
+                                    }
+                                }
+                            }
+
+
+                            int len = -1;
+                            int start = j;
+                            int end = j;
+                            for (; start >= 0 && local[start] > 0; start--) { len++; }
+                            start++;
+                            for (; end < width && local[end] > 0; end++) { len++; }
+                            end--;
+
+                            bool sameLen = true;
+                            for (int k = 0; k < size; k++) {
+                                if (solv->row_runs[i][k].s <= j && solv->row_runs[i][k].e >= j && solv->row_runs[i][k].l != len)
+                                    sameLen = false;
+                            }
+
+                            if (sameLen) {
+                                int status = local_set(local, start - 1, EMPTY);
+                                if (status == CONFLICT) lconflict = true;
+                                if (status == PROGRESS) lprogress = true;
+                                status = local_set(local, end + 1, EMPTY);
+                                if (status == CONFLICT) lconflict = true;
+                                if (status == PROGRESS) lprogress = true;
+                            }
+                        }
+                    }
+                }
+
 
                 // Rule 1.4
                 for (int j = 1; j < width - 1; j++) {
-                    if (local[(j - 1)] > 0 && local[j] == UNKNOWN && local[(j + 1)] > 0) {
-                        int len = 1;
-                        for (int k = j - 1; k >= 0 && local[k] > 0; k--) { len++; }
-                        for (int k = j + 1; k < width && local[k] > 0; k++) { len++; }
-
-                        int maxLen = 0;
-                        for (int k = 0; k < size; k++) {
-                            if (solv->row_runs[i][k].s <= j - 1 && solv->row_runs[i][k].e >= j + 1 && solv->row_runs[i][k].l > maxLen)
-                                maxLen = solv->row_runs[i][k].l;
-                        }
-
-                        if (len > maxLen) {
-                            int status = local_set(local, j, EMPTY);
-                            if (status == CONFLICT) lconflict = true;
-                            if (status == PROGRESS) lprogress = true;
-                        }
-                    }
                 }
 
-                // Rule 1.5
-                for (int j = 1; j < width; j++) {
-                    int color = 1;
-
-                    if ((local[(j - 1)] == EMPTY || local[(j - 1)] == UNKNOWN) && local[j] > 0) {
-                        int minLen = width + 1;
-                        for (int k = 0; k < size; k++) {
-                            if (solv->row_runs[i][k].s <= j && solv->row_runs[i][k].e >= j && solv->row_runs[i][k].l < minLen)
-                                minLen = solv->row_runs[i][k].l;
-                        }
-
-                        if (minLen <= width) {
-                            int empty = j - 1;
-                            for (; empty >= j - minLen && empty >= 0 && local[empty] != EMPTY; empty--) {}
-                            if (empty >= j - minLen + 1) {
-                                for (int k = j + 1; k <= empty + minLen; k++) {
-                                    int status = local_set(local, k, color);
-                                    if (status == CONFLICT) lconflict = true;
-                                    if (status == PROGRESS) lprogress = true;
-                                }
-                            }
-
-                            empty = j + 1;
-                            for (; empty <= j + minLen && empty < width && local[empty] != EMPTY; empty++) {}
-                            if (empty <= j + minLen - 1) {
-                                for (int k = empty - minLen; k <= j - 1; k++) {
-                                    int status = local_set(local, k, color);
-                                    if (status == CONFLICT) lconflict = true;
-                                    if (status == PROGRESS) lprogress = true;
-                                }
-                            }
-                        }
-
-
-                        int len = -1;
-                        int start = j;
-                        int end = j;
-                        for (; start >= 0 && local[start] > 0; start--) { len++; }
-                        start++;
-                        for (; end < width && local[end] > 0; end++) { len++; }
-                        end--;
-
-                        bool sameLen = true;
-                        for (int k = 0; k < size; k++) {
-                            if (solv->row_runs[i][k].s <= j && solv->row_runs[i][k].e >= j && solv->row_runs[i][k].l != len)
-                                sameLen = false;
-                        }
-
-                        if (sameLen) {
-                            int status = local_set(local, start - 1, EMPTY);
-                            if (status == CONFLICT) lconflict = true;
-                            if (status == PROGRESS) lprogress = true;
-                            status = local_set(local, end + 1, EMPTY);
-                            if (status == CONFLICT) lconflict = true;
-                            if (status == PROGRESS) lprogress = true;
-                        }
-                    }
-                }
 
                 // ---- PART 2 ----
                 // Rule 2.1
