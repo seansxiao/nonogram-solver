@@ -289,7 +289,7 @@ bool solve(Puzzle p, Solution sol) {
                 {
                     progress = false;
                 }
-                //#pragma omp barrier
+                /* #pragma omp barrier */
                 // ======================
                 // ======== ROWS ========
                 // ======================
@@ -677,7 +677,7 @@ bool solve(Puzzle p, Solution sol) {
                     }
                 }
 
-                //#pragma omp barrier
+                #pragma omp barrier
 
                 // =========================
                 // ======== COLUMNS ========
