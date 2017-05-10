@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NUM_THREADS 8
+#define NUM_THREADS 8 
 
 Solver initialize_solver(Puzzle p) {
 	solver* solv = (struct solver*)(malloc(sizeof(struct solver)));
@@ -452,17 +452,23 @@ bool solve_helper(Puzzle p, State st) {
 				// ---- PART 3 ----
 				// Rule 3.1
 				for (int j = 0; j < size; j++) {
+
 					int prevEnd = j == 0 ? -1 : solv->row_runs[i][j-1].e;
 					int nextStart = j == size - 1 ? width : solv->row_runs[i][j+1].s;
+
+					int start = solv->row_runs[i][j].s;
+					int end = solv->row_runs[i][j].e;
+					int len = solv->row_runs[i][j].l;
+					int color = p->row_constraints[i][j].color;
 					int startCell = prevEnd + 1;
 					for (; startCell < nextStart && solu->data[i * solu->width + startCell] <= 0; startCell++) {}
 					int endCell = nextStart - 1;
 					for (; endCell > prevEnd && solu->data[i * solu->width + endCell] <= 0; endCell--) {}
 
-					int u = solv->row_runs[i][j].l - (endCell - startCell + 1);
+					int u = len - (endCell - startCell + 1);
 					if (startCell <= endCell && u >= 0) {
 						for (int k = startCell + 1; k < endCell; k++) {
-							int status = solu->set(i, k, p->row_constraints[i][j].color);
+							int status = solu->set(i, k, color);
 							if (status == CONFLICT) conflict = true;
 							if (status == PROGRESS) progress = true;
 						}
@@ -478,13 +484,7 @@ bool solve_helper(Puzzle p, State st) {
 							if (status == PROGRESS) progress = true;
 						}
 					}
-				}
 
-				// Rule 3.2
-				for (int j = 0; j < size; j++) {
-					int start = solv->row_runs[i][j].s;
-					int end = solv->row_runs[i][j].e;
-					int len = solv->row_runs[i][j].l;
 					int segLen = 0;
 					int index = start;
 					for (int k = start; k <= end; k++) {
@@ -521,13 +521,7 @@ bool solve_helper(Puzzle p, State st) {
 							}
 						}
 					}
-				}
 
-				// Rule 3.3-1
-				for (int j = 0; j < size; j++) {
-					int start = solv->row_runs[i][j].s;
-					int len = solv->row_runs[i][j].l;
-					int color = p->row_constraints[i][j].color;
 					if (solu->data[i * solu->width + start] == color &&
 						(j == 0 || solv->row_runs[i][j-1].e < start)) {
 						for (int k = start + 1; k <= start + len - 1; k++) {
@@ -557,13 +551,7 @@ bool solve_helper(Puzzle p, State st) {
 							if (status == PROGRESS) progress = true;
 						}
 					}
-				}
 
-				// Rule 3.3-2
-				for (int j = 0; j < size; j++) {
-					int start = solv->row_runs[i][j].s;
-					int end = solv->row_runs[i][j].e;
-					int color = p->row_constraints[i][j].color;
 					int black = start;
 					for (; black < end && solu->data[i * solu->width + black] != color; black++) {}
 					int empty = black;
@@ -574,14 +562,7 @@ bool solve_helper(Puzzle p, State st) {
 						if (status == CONFLICT) conflict = true;
 						if (status == PROGRESS) progress = true;
 					}
-				}
 
-				// Rule 3.3-3
-				for (int j = 0; j < size; j++) {
-					int start = solv->row_runs[i][j].s;
-					int end = solv->row_runs[i][j].e;
-					int color = p->row_constraints[i][j].color;
-					int len = solv->row_runs[i][j].l;
 
 					if (j == 0 || start > solv->row_runs[i][j-1].e) {
 						int black = start;
@@ -604,6 +585,7 @@ bool solve_helper(Puzzle p, State st) {
 						}
 					}
 				}
+
 			}
 
 	        #pragma omp barrier
@@ -848,14 +830,19 @@ bool solve_helper(Puzzle p, State st) {
 					int prevEnd = j == 0 ? -1 : solv->col_runs[i][j-1].e;
 					int nextStart = j == size - 1 ? height : solv->col_runs[i][j+1].s;
 					int startCell = prevEnd + 1;
+					int end = solv->col_runs[i][j].e;
+					int len = solv->col_runs[i][j].l;
+
+					int color = p->col_constraints[i][j].color;
+					int start = solv->col_runs[i][j].s;
 					for (; startCell < nextStart && local_col[startCell] <= 0; startCell++) {}
 					int endCell = nextStart - 1;
 					for (; endCell > prevEnd && local_col[endCell] <= 0; endCell--) {}
 
-					int u = solv->col_runs[i][j].l - (endCell - startCell + 1);
+					int u = len - (endCell - startCell + 1);
 					if (startCell <= endCell && u >= 0) {
 						for (int k = startCell + 1; k < endCell; k++) {
-							int status = col_set(local_col,k, p->col_constraints[i][j].color);
+							int status = col_set(local_col,k, color);
 							if (status == CONFLICT) conflict = true;
 							if (status == PROGRESS) progress = true;
 						}
@@ -871,13 +858,7 @@ bool solve_helper(Puzzle p, State st) {
 							if (status == PROGRESS) progress = true;
 						}
 					}
-				}
 
-				// Rule 3.2
-				for (int j = 0; j < size; j++) {
-					int start = solv->col_runs[i][j].s;
-					int end = solv->col_runs[i][j].e;
-					int len = solv->col_runs[i][j].l;
 					int segLen = 0;
 					int index = start;
 					for (int k = start; k <= end; k++) {
@@ -914,13 +895,7 @@ bool solve_helper(Puzzle p, State st) {
 							}
 						}
 					}
-				}
 
-				// Rule 3.3-1
-				for (int j = 0; j < size; j++) {
-					int start = solv->col_runs[i][j].s;
-					int len = solv->col_runs[i][j].l;
-					int color = p->col_constraints[i][j].color;
 					if (local_col[start] == color &&
 						(j == 0 || solv->col_runs[i][j-1].e < start)) {
 						for (int k = start + 1; k <= start + len - 1; k++) {
@@ -950,13 +925,7 @@ bool solve_helper(Puzzle p, State st) {
 							if (status == PROGRESS) progress = true;
 						}
 					}
-				}
 
-				// Rule 3.3-2
-				for (int j = 0; j < size; j++) {
-					int start = solv->col_runs[i][j].s;
-					int end = solv->col_runs[i][j].e;
-					int color = p->col_constraints[i][j].color;
 					int black = start;
 					for (; black < end && local_col[black] != color; black++) {}
 					int empty = black;
@@ -967,14 +936,6 @@ bool solve_helper(Puzzle p, State st) {
 						if (status == CONFLICT) conflict = true;
 						if (status == PROGRESS) progress = true;
 					}
-				}
-
-				// Rule 3.3-3
-				for (int j = 0; j < size; j++) {
-					int start = solv->col_runs[i][j].s;
-					int end = solv->col_runs[i][j].e;
-					int color = p->col_constraints[i][j].color;
-					int len = solv->col_runs[i][j].l;
 
 					if (j == 0 || start > solv->col_runs[i][j-1].e) {
 						int black = start;
@@ -996,6 +957,7 @@ bool solve_helper(Puzzle p, State st) {
 							}
 						}
 					}
+
 				}
 
 	            // Write to global memory
