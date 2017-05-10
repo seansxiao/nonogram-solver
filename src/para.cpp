@@ -456,18 +456,20 @@ bool solve(Puzzle p, Solution sol) {
 
                     // ---- PART 2 ----
                     // Rule 2.1
-                    for (int j = 1; j < size; j++) {
+                    for (int j = 0; j < size; j++) {
+
                         int currentStart = solv->row_runs[i][j].s;
                         int prevStart = solv->row_runs[i][j-1].s;
+                        int nextEnd = solv->row_runs[i][j+1].e;
+                        int currentEnd = solv->row_runs[i][j].e;
+                        if(j >= 1){
                         if (currentStart <= prevStart) {
                             int status = solv->row_runs[i][j].start(prevStart + solv->row_runs[i][j-1].l + 1);
                             if (status == CONFLICT) lconflict = true;
                             if (status == PROGRESS) lprogress = true;
                         }
-                    }
-                    for (int j = 0; j < size - 1; j++) {
-                        int currentEnd = solv->row_runs[i][j].e;
-                        int nextEnd = solv->row_runs[i][j+1].e;
+                        }
+                    if(j < size - 1) {
                         if (currentEnd >= nextEnd) {
                             int status = solv->row_runs[i][j].end(nextEnd - solv->row_runs[i][j+1].l - 1);
                             if (status == CONFLICT) lconflict = true;
@@ -475,10 +477,6 @@ bool solve(Puzzle p, Solution sol) {
                         }
                     }
 
-                    // Rule 2.2
-                    for (int j = 0; j < size; j++) {
-                        int currentStart = solv->row_runs[i][j].s;
-                        int currentEnd = solv->row_runs[i][j].e;
                         if (currentStart > 0) {
                             int prevCell = local[currentStart - 1];
                             if (prevCell != EMPTY && prevCell != UNKNOWN) {
@@ -495,12 +493,9 @@ bool solve(Puzzle p, Solution sol) {
                                 if (status == PROGRESS) lprogress = true;
                             }
                         }
-                    }
-
-                    // Rule 2.3
-                    for (int j = 1; j < size - 1; j++) {
-                        int start = solv->row_runs[i][j].s;
-                        int end = solv->row_runs[i][j].e;
+                        if(j >=1 && j < size - 1){
+                        int start = currentStart;
+                        int end = currentEnd; 
                         int len = solv->row_runs[i][j].l;
                         int color = p->row_constraints[i][j].color;
                         int segStart = start;
@@ -526,7 +521,9 @@ bool solve(Puzzle p, Solution sol) {
                                 segEnd = segStart - 1;
                             }
                         }
+                        }
                     }
+
 
                     // ---- PART 3 ----
                     // Rule 3.1
@@ -677,7 +674,7 @@ bool solve(Puzzle p, Solution sol) {
                     }
                 }
 
-                //#pragma omp barrier
+                #pragma omp barrier
 
                 // =========================
                 // ======== COLUMNS ========
