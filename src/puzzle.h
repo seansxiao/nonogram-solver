@@ -9,7 +9,7 @@
 #define CONFLICT -1
 #define OUTOFBOUNDS -2
 
-
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -67,12 +67,12 @@ using Puzzle = puzzle*;
 struct solution {
 	int width;
 	int height;
-	int* data;
+	int8_t* data;
 
 	solution(int w, int h) {
 		width = w;
 		height = h;
-		data = new int[width * height];
+		data = new int8_t[width * height];
 		for (int i = 0; i < width * height; i++) {
 			data[i] = EMPTY;
 		}

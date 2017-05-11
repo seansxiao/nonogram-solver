@@ -54,11 +54,6 @@ void initialize_runs(Puzzle p, Solver solv) {
 
         for (int j = 0; j < size; j++) {
             solv->row_runs[i][j].l = p->row_constraints[i][j].num;
-            int runStart = solv->row_runs[i][j].s;
-            int runEnd = solv->row_runs[i][j].e + solv->row_runs[i][j].l;
-            for (int k = runStart; k < runEnd; k++) {
-                // solv->cells[i][k].runs
-            }
         }
     }
 
@@ -157,7 +152,7 @@ void free_state(State st) {
     return;
 }
 
-int local_set(int data[], int row, int color) {
+int local_set(int8_t data[], int row, int color) {
         if (row < 0 || row >= global_height) 
             return OUTOFBOUNDS;
 
@@ -298,7 +293,7 @@ bool solve(Puzzle p, Solution sol) {
                 /* #pragma omp for */  
                 /* for (int i = 0; i < height; i++){ */
                     int size = solv->row_sizes[i];
-                    int local[width]; //get local copy
+                    int8_t local[width]; //get local copy
                     bool lconflict = false;
                     bool lprogress = false; 
                     for(int j = 0; j < width; j++){
@@ -688,7 +683,7 @@ bool solve(Puzzle p, Solution sol) {
                     if (!col_solved(i, solu, p, solv)) {
                 //#pragma omp for  
                 /* for (int i = 0; i < width; i++) { */
-                    int local_col[height]; //get local copy
+                    int8_t local_col[height]; //get local copy
                     bool lconflict = false;
                     bool lprogress = false; 
                     for(int j = 0; j < height; j++){

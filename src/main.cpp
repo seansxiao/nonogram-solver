@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 	printf("Column constraints:\n");
 	for (int i = 0; i < p.width; i++) {
 		for (int j = 0; j < p.col_sizes[i]; j++) {
-			printf("%d ", p.col_constraints[i][j]);
+			printf("%d ", p.col_constraints[i][j].num);
 		}
 		printf("\n");
 	}
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
 	// Print row constraints
 	for (int i = 0; i < p.height; i++) {
 		for (int j = 0; j < p.row_sizes[i]; j++) {
-			printf("%d ", p.row_constraints[i][j]);
+			printf("%d ", p.row_constraints[i][j].num);
 		}
 		printf("\n");
 	}
@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
     int scale = 4;
     int sw = w*scale;
     int sh = h*scale;
-    int *d = s->data;
+    int8_t *d = s->data;
     int scaled[scale * scale * w* h]; 
     for(int i = 0; i < h; i++){
         for(int j = 0; j < w; j++){

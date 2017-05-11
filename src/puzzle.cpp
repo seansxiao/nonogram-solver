@@ -8,7 +8,7 @@ Solution initialize_solution(int w, int h) {
 	Solution s = (solution*)(malloc(sizeof(struct solution)));
 	s->width = w;
 	s->height = h;
-	s->data = (int*)(malloc(sizeof(int) * w * h));
+	s->data = (int8_t*)(malloc(sizeof(int8_t) * w * h));
 	for (int i = 0; i < w * h; i++) {
 		s->data[i] = EMPTY;
 	}
