@@ -270,7 +270,6 @@ bool solve(Puzzle p, Solution sol) {
         bool progress = true;
         bool conflict = false;
         int iterations = 0;
-
         double start = CycleTimer::currentSeconds();
         #pragma omp parallel num_threads(NUM_THREADS)
         {
@@ -672,7 +671,7 @@ bool solve(Puzzle p, Solution sol) {
                     }
                 }
 
-                //#pragma omp barrier
+                #pragma omp barrier
 
                 // =========================
                 // ======== COLUMNS ========
@@ -1063,13 +1062,12 @@ bool solve(Puzzle p, Solution sol) {
 
                 // solu->print_solution();
                 
-                // #pragma omp single
-                // {
-                //  iterations++;
-                // }
+                #pragma omp single
+                 {
+                  iterations++;
+                 }
             }
         }
-
         double ref = CycleTimer::currentSeconds() - start;
         pragmaT += ref;
 
