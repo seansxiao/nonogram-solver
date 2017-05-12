@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
     int scale = 4;
     int sw = w*scale;
     int sh = h*scale;
-    int *d = s->data;
+    int8_t *d = s->data;
     int scaled[scale * scale * w* h]; 
     for(int i = 0; i < h; i++){
         for(int j = 0; j < w; j++){
