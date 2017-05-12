@@ -48,6 +48,13 @@ We timed the parallel portion and found that approximately 5% of the algorithm i
 #### Comparison to Existing Implementations
 There were few references to parallel nonogram solvers online, but we found a Haskell implementation here: <https://jaspervdj.be/posts/2011-07-05-parallelizing-a-nonogram-solver.html>. We ran our solver against their test cases and found that our solver runs an order of magnitude faster (although the machines are different, their clock speed of 3.00 Ghz is similar) as well as achieving greater speedup on two threads (they only tested a dual core machine). We also found a previous 418 project that modified an existing, highly-optimized solver, but their speedup was not very great and in many cases led to a performance decrease. The only other parallel solver we were able to find was a Chinese slide presentation (<https://www.slideshare.net/ssuserd7f3cf/solving-nonograms-in-parallel>) which achieved 5.2x speedup using 10 cores, but it was difficult to compare because it is written in Chinese.
 
+<div>
+<img src="runtime1.png">
+<img src="runtime2.png">
+</div>
+
+Comparing our test cases to a sequential solver, we see decent speedup on some test puzzles but also slowdown on others. This is most likely due to more advanced guessing tehcniques implemented by the solver. We believe that our solver would have been competitive had we used these techniques. 
+
 #### Areas for improvement
 Regarding overall execution time, there is room for improvement. Our DFS guessing algorithmn is very straightforward could have benefited from better heuristics or a probing approach. We more mostly focused on achieving parallel speedup so we did not devote much time to this. 
 
@@ -61,7 +68,7 @@ Nonogram solving techniques: Yu, Chiung-Hsueh, Hui-Lung Lee, and Ling-Hwei Chen.
 ### Work
 Equal work was performed by both members.
 
-<br><br><br><br><br>
+<br><br><br><br><br><br><br><br>
 
 ## Proposal
 
