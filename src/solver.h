@@ -5,7 +5,7 @@ struct run {
 	int e;
 	int l;
 
-	int start(int sNew) {
+	inline int start(int sNew) {
 		if (e - sNew + 1 < l) {
 			return CONFLICT;
 		}
@@ -18,7 +18,7 @@ struct run {
 		}
 	}
 
-	int end(int eNew) {
+	inline int end(int eNew) {
 		if (eNew - s + 1 < l) {
 			return CONFLICT;
 		}
@@ -32,12 +32,6 @@ struct run {
 	}
 };
 
-// struct cell {
-// 	run** runs;
-// 	int count;
-// 	bool* present;
-// };
-
 struct solver {
 	int width;
 	int height;
@@ -49,15 +43,13 @@ struct solver {
 	run** col_runs;
 	int* col_sizes;
 	bool* solved_cols;
-
-	// cell** cells;
 };
 
 using Solver = solver*;
 
-Solver initialize_solver(Puzzle p);
-void initialize_runs(Puzzle p, Solver solv);
-void free_solver(Solver solv);
+inline Solver initialize_solver(Puzzle p);
+inline void initialize_runs(Puzzle p, Solver solv);
+inline void free_solver(Solver solv);
 
 struct state {
 	Solver solv;
@@ -68,11 +60,11 @@ struct state {
 
 using State = state*;
 
-State create_state(Solver s, Solution sol);
-void free_state(State st);
+inline State create_state(Solver s, Solution sol);
+inline void free_state(State st);
 
 
 
 bool solve(Puzzle p, Solution s);
 bool solve_helper(Puzzle p, State st);
-bool filled(Solution s);
+inline bool filled(Solution s);

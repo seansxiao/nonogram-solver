@@ -93,7 +93,7 @@ struct solution {
 		return;
 	}
 
-	int set(int row, int col, int color) {
+	inline int set(int row, int col, int color) {
 		if (row < 0 || row >= height || col < 0 || col >= width)
 			return OUTOFBOUNDS;
 
