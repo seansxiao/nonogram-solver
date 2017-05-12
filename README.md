@@ -4,6 +4,8 @@ Team members: Sean Xiao (ssx), Nicholas Mu (nhmu)
 
 ### Summary:
 Out team implemented a parallel and sequential nonogram solver using OpenMP that runs on the GHC machines. Our parallel solver achieves notable speedup over the sequential version, particularly when moving from one to two threads.
+#### How to run:
+Compile with `make` and run `./nonogram_solver LINK_TO_PUZZLE.txt` for the parallel implementation or `./nonogram_solver_ref LINK_TO_PUZZLE.txt` for the sequential version. The number of threads can be set by modifying `NUM_THREADS` in para.cpp.
 
 ### Implementation:
 Our algorithm for nonogram solving consists of an iterative line-solving portion where we try to solve as much of the puzzle as we can using only logical rules for each line. When the line solver can't make any more progress, we make a guess for a particular clue and then try line solving again. If a contradiction occurs, we backtrack and change our guess and try again. Otherwise, we keep going, making guesses whenever the line solver stalls. The potential guesses we can at each point make form a tree, which we traverse using DFS.
