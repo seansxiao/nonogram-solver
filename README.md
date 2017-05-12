@@ -53,7 +53,7 @@ There were few references to parallel nonogram solvers online, but we found a Ha
 <img src="runtime2.png">
 </div>
 
-Comparing our test cases to a sequential solver, we see decent speedup on some test puzzles but also slowdown on others. This is most likely due to more advanced guessing tehcniques implemented by the solver. We believe that our solver would have been competitive had we used these techniques. 
+Comparing our test cases to a sequential solver, we see decent speedup on some test puzzles but also slowdown on others. This is most likely due to more advanced guessing tehcniques implemented by the solver. We believe that our solver would have been competitive on these cases had we used these techniques. 
 
 #### Areas for improvement
 Regarding overall execution time, there is room for improvement. Our DFS guessing algorithmn is very straightforward could have benefited from better heuristics or a probing approach. We more mostly focused on achieving parallel speedup so we did not devote much time to this. 
